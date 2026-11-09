@@ -1,83 +1,13 @@
-"""Iterator, helper input, dan kelas pengelola AplikasiKesehatan (F1-F10)."""
+"""Kelas pengelola AplikasiKesehatan: menu dan semua fitur F1-F10."""
 from datetime import datetime, time
 
 from .aktivitas import Berenang, Bersepeda, JalanKaki, Lari
 from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur,
                       CatatanVital)
 from .exceptions import AbnormalVitalException
+from .input_util import input_float, input_int, input_jam, input_tanggal
+from .iterasi import RiwayatCatatan, catatan_tanggal, pemantau_vital
 from .pengguna import FAKTOR_AKTIVITAS, NAMA_LEVEL, Pengguna
-
-
-class RiwayatCatatan:
-    """Menelusuri catatan urut tanggal dengan __iter__ dan __next__."""
-
-    def __init__(self, daftar_catatan):
-        self.data = sorted(daftar_catatan, key=lambda c: c.tanggal)
-        self.indeks = 0
-
-    def __iter__(self):
-        self.indeks = 0
-        return self
-
-    def __next__(self):
-        if self.indeks >= len(self.data):
-            raise StopIteration
-        catatan = self.data[self.indeks]
-        self.indeks += 1
-        return catatan
-
-
-# ---------- P06: generator ----------
-def catatan_tanggal(daftar_catatan, tanggal):
-    for c in daftar_catatan:
-        if c.tanggal == tanggal:
-            yield c
-
-
-# ---------- P07: coroutine ----------
-def pemantau_vital():
-    """Kirim CatatanVital dengan send(); balasannya (jumlah abnormal, jumlah diperiksa)."""
-    abnormal = diperiksa = 0
-    while True:
-        catatan = yield (abnormal, diperiksa)
-        diperiksa += 1
-        if catatan.status == "ABNORMAL":
-            abnormal += 1
-
-
-def input_int(prompt):
-    while True:
-        try:
-            return int(input(prompt))
-        except ValueError:
-            print("Masukkan bilangan bulat!")
-
-
-def input_float(prompt):
-    while True:
-        try:
-            return float(input(prompt).replace(",", "."))
-        except ValueError:
-            print("Masukkan angka!")
-
-
-def input_tanggal():
-    while True:
-        teks = input("Tanggal (YYYY-MM-DD, kosong = hari ini): ").strip()
-        if not teks:
-            return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        try:
-            return datetime.strptime(teks, "%Y-%m-%d")
-        except ValueError:
-            print("Format tanggal salah!")
-
-
-def input_jam(prompt):
-    while True:
-        try:
-            return datetime.strptime(input(prompt).strip(), "%H:%M").time()
-        except ValueError:
-            print("Format jam salah, gunakan HH:MM")
 
 
 class AplikasiKesehatan:
