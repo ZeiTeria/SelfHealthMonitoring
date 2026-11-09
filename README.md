@@ -22,10 +22,23 @@ Proyek UTS Perancangan dan Pemrograman Berorientasi Objek, Kelompok 8, IF-A Sore
 - Exception handling (`AbnormalVitalException`, `ValueError`)
 - Iterator (`RiwayatCatatan` dengan `__iter__` dan `__next__`), generator, dan coroutine
 
+## Struktur proyek
+    main.py                  titik masuk aplikasi
+    driver_demo.py           demo polymorphism, encapsulation, exception, iterator
+    test_kesehatan.py        pengujian otomatis
+    kesehatan/
+        exceptions.py        AbnormalVitalException
+        aktivitas.py         AktivitasFisik dan turunannya (MET)
+        pengguna.py          Pengguna: BMI, BMR, TDEE
+        catatan.py           CatatanHarian (abstract) dan lima catatan turunannya
+        iterasi.py           RiwayatCatatan (iterator), generator, coroutine
+        input_util.py        fungsi bantu input
+        aplikasi.py          AplikasiKesehatan: menu dan fitur F1-F10
+
 ## Cara menjalankan
 Butuh Python 3.8 ke atas, tanpa library tambahan.
 
-    python kesehatan.py        # aplikasi dengan menu
+    python main.py             # aplikasi dengan menu
     python driver_demo.py      # demo polymorphism, encapsulation, exception, iterator
     python test_kesehatan.py   # pengujian otomatis, hasilnya OK
 
