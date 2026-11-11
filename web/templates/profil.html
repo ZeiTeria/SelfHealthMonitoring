@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block judul %}Profil{% endblock %}
+{% block isi %}
+<h1>Profil pengguna</h1>
+<p class="ket">Data ini dipakai untuk menghitung BMI, BMR, dan kebutuhan kalori. Berat badan ikut diperbarui saat kamu mencatat berat baru.</p>
+<form method="post" class="form"><input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label>Nama<input name="nama" required value="{{ p.nama if p else '' }}"></label>
+  <div class="baris">
+    <label>Usia (tahun)<input name="usia" type="number" min="1" max="120" required value="{{ p.usia if p else '' }}"></label>
+    <label>Jenis kelamin
+      <select name="jenis_kelamin" required>
+        <option value="L" {% if p and p.jenis_kelamin == 'L' %}selected{% endif %}>Laki-laki</option>
+        <option value="P" {% if p and p.jenis_kelamin == 'P' %}selected{% endif %}>Perempuan</option>
+      </select></label>
+  </div>
+  <div class="baris">
+    <label>Tinggi (cm)<input name="tinggi" type="number" step="any" min="50" max="250" required value="{{ p.tinggi if p else '' }}"></label>
+    <label>Berat (kg)<input name="berat" type="number" step="any" min="10" max="500" required value="{{ p.berat if p else '' }}"></label>
+    <label>Target berat (kg)<input name="target_berat" type="number" step="any" min="10" max="500" required value="{{ p.target_berat if p else '' }}"></label>
+  </div>
+  <label>Level aktivitas
+    <select name="level_aktivitas" required>
+      {% for k, v in level.items() %}<option value="{{ k }}" {% if p and p.level_aktivitas == k %}selected{% endif %}>{{ k }} - {{ v }}</option>{% endfor %}
+    </select></label>
+  <button type="submit">Simpan profil</button>
+</form>
+<form method="post" action="{{ url_for('data_contoh') }}" class="inline" {% if p %}onsubmit="return confirm('Profil dan semua catatan akan diganti data contoh. Lanjut?')"{% endif %}><input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <button class="sekunder" type="submit">Isi data contoh</button>
+</form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import tabel_catatan %}
+{% block judul %}Semua catatan{% endblock %}
+{% block isi %}
+<h1>Semua catatan</h1>
+<p class="sub">Diurutkan berdasarkan tanggal oleh iterator RiwayatCatatan. Ringkasan tanda vital: <strong>{{ abnormal }} abnormal dari {{ diperiksa }} pemeriksaan</strong> (dihitung coroutine pemantau_vital).</p>
+{{ tabel_catatan(daftar, "Belum ada catatan. Tambahkan lewat menu di atas atau isi data contoh dari Beranda.") }}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block judul %}BMI & TDEE{% endblock %}
+{% block isi %}
+<h1>BMI, BMR, dan TDEE</h1>
+<p class="ket">Dihitung dari profil {{ t.pengguna.nama }}: BMI dari berat dan tinggi, BMR dengan rumus Mifflin-St Jeor, TDEE dari BMR dikali faktor aktivitas.</p>
+<dl class="deret">
+  <div><dt>BMI</dt><dd>{{ '%.2f'|format(t.bmi) }}<small class="tanda {{ t.kategori|lower }}">{{ t.kategori }}</small></dd></div>
+  <div><dt>BMR</dt><dd>{{ '%.0f'|format(t.bmr) }}<small>kkal per hari</small></dd></div>
+  <div><dt>Berat → target</dt><dd>{{ t.pengguna.berat }} → {{ t.pengguna.target_berat }}<small>{% if t.selisih_target > 0 %}perlu turun {{ '%.1f'|format(t.selisih_target) }} kg{% elif t.selisih_target < 0 %}perlu naik {{ '%.1f'|format(-t.selisih_target) }} kg{% else %}sudah sama dengan target{% endif %}</small></dd></div>
+</dl>
+<h2>Rencana mencapai target berat</h2>
+{% if t.rencana.arah == 'tetap' %}
+<p class="sub">Beratmu sudah sama dengan target. Untuk mempertahankannya, asupan harian yang cocok sekitar {{ '%.0f'|format(t.rencana.kalori_harian) }} kkal (sama dengan TDEE).</p>
+{% else %}
+<table class="data">
+  <tbody>
+    <tr><td>Tujuan</td><td>{{ t.rencana.arah|capitalize }} {{ '%.1f'|format(t.selisih_target|abs) }} kg, dari {{ t.pengguna.berat }} ke {{ t.pengguna.target_berat }} kg</td></tr>
+    <tr class="sorot"><td>Target asupan harian</td><td>{{ '%.0f'|format(t.rencana.kalori_harian) }} kkal</td></tr>
+    <tr><td>Selisih dengan TDEE</td><td>{{ '%.0f'|format(t.rencana.penyesuaian) }} kkal per hari {% if t.rencana.arah == 'turun' %}lebih sedikit{% else %}lebih banyak{% endif %}</td></tr>
+    <tr><td>Perkiraan waktu</td><td>sekitar {{ '%.0f'|format(t.rencana.perkiraan_minggu) }} minggu</td></tr>
+  </tbody>
+</table>
+<p class="sub">Perkiraan memakai 1 kg lemak ≈ 7700 kkal dan selisih 500 kkal per hari (sekitar 0,5 kg per minggu). Target asupan tidak pernah di bawah BMR. Konsultasikan ke dokter atau ahli gizi sebelum mengubah pola makan secara besar.</p>
+{% endif %}
+<h2>TDEE per level aktivitas</h2>
+<table class="data">
+  <thead><tr><th>Level</th><th>Keterangan</th><th>TDEE (kkal per hari)</th></tr></thead>
+  <tbody>
+  {% for lv, (nama, nilai) in t.tdee.items() %}
+  <tr {% if lv == t.pengguna.level_aktivitas %}class="sorot"{% endif %}><td>{{ lv }}</td><td>{{ nama }}{% if lv == t.pengguna.level_aktivitas %} (levelmu){% endif %}</td><td>{{ '%.0f'|format(nilai) }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="sub">Kategori BMI memakai batas Kemenkes: kurus &lt; 18,5 · normal 18,5-25 · gemuk &gt; 25-27 · obesitas &gt; 27.</p>
+{% endblock %}

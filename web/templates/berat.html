@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import tabel_catatan %}
+{% block judul %}Berat badan{% endblock %}
+{% block isi %}
+<h1>Log berat badan</h1>
+<form method="post" class="form"><input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <div class="baris">
+    <label>Tanggal<input name="tanggal" type="date" value="{{ hari }}" required></label>
+    <label>Berat (kg)<input name="berat" type="number" step="any" min="10" max="500" required autofocus></label>
+  </div>
+  <button type="submit">Simpan</button>
+</form>
+<h2>Catatan terbaru</h2>
+{{ tabel_catatan(daftar) }}
+{% endblock %}

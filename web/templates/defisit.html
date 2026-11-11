@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block judul %}Defisit / surplus{% endblock %}
+{% block isi %}
+<h1>Defisit / surplus kalori</h1>
+<p class="ket">Kalori masuk dari makanan dikurangi kebutuhan dasar (TDEE level 1) dan kalori yang dibakar lewat olahraga pada satu tanggal.</p>
+<form method="get" class="form">
+  <div class="baris">
+    <label>Tanggal<input name="tanggal" type="date" value="{{ tanggal }}" required></label>
+    <button type="submit">Hitung</button>
+  </div>
+</form>
+{% if h %}
+<h2>Hasil</h2>
+<p class="besar {{ h.status|lower }}">{{ h.status }} {{ '%.0f'|format(h.selisih|abs) }} kkal</p>
+<table class="data">
+  <tbody>
+    <tr><td>Kalori masuk (makanan)</td><td>{{ '%.0f'|format(h.masuk) }} kkal</td></tr>
+    <tr><td>Kebutuhan dasar (TDEE level 1)</td><td>{{ '%.0f'|format(h.kebutuhan) }} kkal</td></tr>
+    <tr><td>Dibakar olahraga</td><td>{{ '%.0f'|format(h.olahraga) }} kkal</td></tr>
+    <tr class="sorot"><td>Selisih</td><td>{{ '%.0f'|format(h.selisih) }} kkal</td></tr>
+  </tbody>
+</table>
+{% if h.rencana.arah != 'tetap' and h.masuk > 0 %}
+<p class="sub">Target asupan harian untuk mencapai berat target: {{ '%.0f'|format(h.rencana.kalori_harian) }} kkal. Asupanmu hari ini {{ '%.0f'|format((h.masuk - h.rencana.kalori_harian)|abs) }} kkal {% if h.masuk > h.rencana.kalori_harian %}di atas{% else %}di bawah{% endif %} target tersebut.</p>
+{% endif %}
+{% if h.masuk == 0 %}<p class="sub">Belum ada catatan makanan di tanggal ini, jadi hasilnya belum menggambarkan kondisi sebenarnya.</p>{% endif %}
+{% endif %}
+{% endblock %}
