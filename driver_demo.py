@@ -1,6 +1,3 @@
-"""Driver code UTS: membuktikan polymorphism, encapsulation, exception, dan iterator.
-Jalankan: python driver_demo.py   (tidak butuh input)
-"""
 from datetime import datetime, time
 
 from kesehatan import (AbnormalVitalException, Berenang, CatatanAktivitas, CatatanBerat,
@@ -18,7 +15,7 @@ semua = [
     CatatanTidur(hari, time(23, 30), time(6, 0)),
     CatatanVital(hari, 120, 80, 72),
 ]
-for c in semua:  # satu pemanggilan, perilaku berbeda tiap kelas
+for c in semua:
     c.tampilkan()
     print(f"   {type(c).__name__}: kalori_masuk={c.kalori_masuk():.0f}, kalori_keluar={c.kalori_keluar():.0f}")
 
@@ -48,7 +45,7 @@ for sis, dia, nadi in [(120, 80, 70), (150, 95, 110)]:
 
 print("\n=== 4. Iterator (__iter__ dan __next__) di for loop ===")
 data = [CatatanBerat(datetime(2026, 10, d), 70 + d / 10) for d in (3, 1, 2)]
-for c in RiwayatCatatan(data):  # otomatis terurut tanggal
+for c in RiwayatCatatan(data):
     c.tampilkan()
 
 print("\n=== 5. Generator ===")

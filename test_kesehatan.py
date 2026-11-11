@@ -1,4 +1,3 @@
-"""Pengecekan otomatis: python test_kesehatan.py"""
 from datetime import datetime, time
 
 from kesehatan import (AbnormalVitalException, Berenang, CatatanAktivitas, CatatanBerat,
@@ -16,7 +15,7 @@ def harus_error(kelas, *args):
 
 p = Pengguna("A", 20, 170, 70, "L", 65, 2)
 assert round(p.hitung_bmi(), 1) == 24.2 and p.kategori_bmi() == "Normal"
-assert p.hitung_bmr() == 1667.5  # 700 + 1062.5 - 100 + 5
+assert p.hitung_bmr() == 1667.5
 assert p.hitung_tdee() == 1667.5 * 1.375 and round(p.hitung_tdee(1), 1) == 2001.0
 assert Pengguna("B", 20, 160, 50, "P", 50, 1).hitung_bmr() == 500 + 1000 - 100 - 161
 assert [Pengguna("C", 20, 170, b, "L", 60, 1).kategori_bmi() for b in (45, 60, 75, 95)] == \
@@ -55,13 +54,11 @@ try:
 except TypeError:
     pass
 
-# batas BMI Kemenkes: Normal 18.5-25, Gemuk >25-27, Obesitas >27
-def bmi_kategori(bmi):  # tinggi 100 cm -> BMI = berat kg
+def bmi_kategori(bmi):
     return Pengguna("X", 20, 100, bmi, "L", 20, 1).kategori_bmi()
 assert [bmi_kategori(b) for b in (18.4, 18.5, 25, 26, 27, 28)] == \
     ["Kurus", "Normal", "Normal", "Gemuk", "Gemuk", "Obesitas"]
 
-# encapsulation: atribut privat, setter memvalidasi, atribut baca-saja ditolak
 p.berat = 68
 assert p.berat == 68 and p._berat == 68
 harus_error(setattr, p, "berat", -5)
@@ -72,7 +69,6 @@ try:
 except AttributeError:
     pass
 
-# iterator, generator, coroutine
 b = [CatatanBerat(datetime(2026, 10, d), 70) for d in (3, 1, 2)]
 assert [c.tanggal.day for c in RiwayatCatatan(b)] == [1, 2, 3]
 assert len(list(catatan_tanggal(b, datetime(2026, 10, 2)))) == 1
