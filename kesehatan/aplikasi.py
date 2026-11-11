@@ -1,4 +1,3 @@
-"""Kelas pengelola AplikasiKesehatan: menu dan semua fitur F1-F10."""
 from datetime import datetime, time
 
 from .aktivitas import Berenang, Bersepeda, JalanKaki, Lari
@@ -34,7 +33,7 @@ class AplikasiKesehatan:
             return False
         return True
 
-    def buat_profil(self):  # F1
+    def buat_profil(self):
         nama = input("Nama: ")
         usia = input_int("Usia (tahun): ")
         tinggi = input_float("Tinggi (cm): ")
@@ -48,7 +47,7 @@ class AplikasiKesehatan:
         print("Profil tersimpan.")
         self.pengguna.tampil_profil()
 
-    def menu_bmi(self):  # F2
+    def menu_bmi(self):
         if not self.ada_profil():
             return
         p = self.pengguna
@@ -61,17 +60,17 @@ class AplikasiKesehatan:
         else:
             print("Berat badan sudah sama dengan target.")
 
-    def menu_bmr_tdee(self):  # F3
+    def menu_bmr_tdee(self):
         if not self.ada_profil():
             return
         p = self.pengguna
         print(f"BMR (Mifflin-St Jeor): {p.hitung_bmr():.0f} kkal/hari")
-        tabel = {lv: p.hitung_tdee(lv) for lv in FAKTOR_AKTIVITAS}  # dict comprehension
+        tabel = {lv: p.hitung_tdee(lv) for lv in FAKTOR_AKTIVITAS}
         for lv, tdee in tabel.items():
             tanda = "  <- level kamu" if lv == p.level_aktivitas else ""
             print(f"  Level {lv} ({NAMA_LEVEL[lv]}): {tdee:.0f} kkal{tanda}")
 
-    def log_berat(self):  # F4
+    def log_berat(self):
         if not self.ada_profil():
             return
         catatan = CatatanBerat(input_tanggal(), input_float("Berat (kg): "))
@@ -79,7 +78,7 @@ class AplikasiKesehatan:
         self.pengguna.berat = catatan.berat
         print("Berat tercatat, profil diperbarui.")
 
-    def log_aktivitas(self):  # F5
+    def log_aktivitas(self):
         if not self.ada_profil():
             return
         tanggal = input_tanggal()
@@ -94,7 +93,7 @@ class AplikasiKesehatan:
         self.daftar_catatan.append(catatan)
         print(f"Kalori terbakar: {catatan.kalori_terbakar:.0f} kkal")
 
-    def log_makanan(self):  # F6
+    def log_makanan(self):
         if not self.ada_profil():
             return
         tanggal = input_tanggal()
@@ -102,12 +101,12 @@ class AplikasiKesehatan:
         self.daftar_catatan.append(CatatanMakanan(tanggal, nama, input_float("Kalori (kkal): ")))
         print("Makanan tercatat.")
 
-    def defisit_surplus(self):  # F7
+    def defisit_surplus(self):
         if not self.ada_profil():
             return
         tanggal = input_tanggal()
-        hari_ini = list(catatan_tanggal(self.daftar_catatan, tanggal))  # generator
-        total_masuk = sum([c.kalori_masuk() for c in hari_ini])  # polymorphism
+        hari_ini = list(catatan_tanggal(self.daftar_catatan, tanggal))
+        total_masuk = sum([c.kalori_masuk() for c in hari_ini])
         total_olahraga = sum([c.kalori_keluar() for c in hari_ini])
         kebutuhan = self.pengguna.hitung_tdee(1)
         selisih = total_masuk - (kebutuhan + total_olahraga)
@@ -123,7 +122,7 @@ class AplikasiKesehatan:
         if total_masuk == 0:
             print("(Belum ada catatan makanan di tanggal ini, hasil belum menggambarkan kondisi sebenarnya)")
 
-    def log_tidur(self):  # F8
+    def log_tidur(self):
         if not self.ada_profil():
             return
         tanggal = input_tanggal()
@@ -131,7 +130,7 @@ class AplikasiKesehatan:
         self.daftar_catatan.append(catatan)
         print(f"Durasi tidur: {catatan.durasi_jam():.1f} jam")
 
-    def catat_vital(self):  # F9 dan F10
+    def catat_vital(self):
         if not self.ada_profil():
             return
         catatan = CatatanVital(input_tanggal(), input_int("Sistolik (mmHg): "),
@@ -149,9 +148,9 @@ class AplikasiKesehatan:
         if not self.daftar_catatan:
             print("Belum ada catatan.")
             return
-        for catatan in RiwayatCatatan(self.daftar_catatan):  # iterator
-            catatan.tampilkan()  # polymorphism
-        pantau = pemantau_vital()  # coroutine
+        for catatan in RiwayatCatatan(self.daftar_catatan):
+            catatan.tampilkan()
+        pantau = pemantau_vital()
         hasil = next(pantau)
         for c in self.daftar_catatan:
             if isinstance(c, CatatanVital):
@@ -179,7 +178,7 @@ class AplikasiKesehatan:
         try:
             vital.cek_vital()
         except AbnormalVitalException:
-            pass  # statusnya jadi ABNORMAL, tampil di menu 10
+            pass
         print("Data contoh terisi (profil + 6 catatan, tanggal 2026-10-09).")
 
     def tampil_menu(self):

@@ -1,4 +1,3 @@
-"""Fungsi bantu input konsol dengan validasi."""
 from datetime import datetime
 
 
