@@ -105,6 +105,9 @@ class Database:
         return [(r["id"], kelas[r["nama"]]) for r in rows]
 
     def simpan_catatan(self, c):
+        # Tiap jenis catatan punya tabel dan kolom sendiri, jadi dicek dulu objek ini termasuk
+        # jenis yang mana. Nilai selalu dikirim lewat tanda tanya (?), tidak digabung ke teks SQL,
+        # supaya aman dari SQL injection.
         tanggal = c.tanggal.strftime(FORMAT_TANGGAL)
         if isinstance(c, CatatanBerat):
             sql, nilai = "INSERT INTO catatan_berat (tanggal, berat) VALUES (?, ?)", (tanggal, c.berat)
@@ -131,6 +134,8 @@ class Database:
         c.id = cur.lastrowid
 
     def muat_catatan(self):
+        # Baris dari tiap tabel dibuat lagi menjadi objek catatan, sehingga bagian lain program
+        # bekerja dengan objek yang sama seperti versi terminal.
         hasil = []
         aktivitas = dict(self.daftar_aktivitas())
         for r in self.koneksi.execute("SELECT * FROM catatan_berat"):
@@ -154,6 +159,8 @@ class Database:
         return hasil
 
     def hapus_catatan(self, tabel, id_catatan):
+        # Nama tabel tidak bisa dikirim lewat tanda tanya (?), jadi dicocokkan dulu dengan daftar
+        # tabel yang diizinkan sebelum dimasukkan ke query.
         if tabel not in TABEL_CATATAN.values():
             raise ValueError("Tabel tidak dikenal")
         self.koneksi.execute(f"DELETE FROM {tabel} WHERE id = ?", (id_catatan,))

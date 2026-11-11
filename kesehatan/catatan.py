@@ -4,6 +4,9 @@ from datetime import time
 from .exceptions import AbnormalVitalException
 
 
+# Abstract class: induk dari semua catatan harian dan tidak bisa dibuat objeknya langsung.
+# Setiap catatan wajib menulis tampilkan() sendiri. Sedangkan kalori_masuk() dan kalori_keluar()
+# bernilai 0 kecuali di-override oleh catatan yang memang punya kalori.
 class CatatanHarian(ABC):
     def __init__(self, tanggal):
         self._tanggal = tanggal
@@ -26,6 +29,8 @@ class CatatanHarian(ABC):
         return self.tanggal.strftime("%Y-%m-%d")
 
 
+# Di semua kelas catatan, atribut disimpan dengan awalan _ (privat) dan hanya bisa dibaca lewat
+# @property. Jadi catatan yang sudah dibuat tidak berubah tanpa sengaja.
 class CatatanBerat(CatatanHarian):
     def __init__(self, tanggal, berat):
         if not 10 <= berat <= 500:
@@ -125,7 +130,9 @@ class CatatanTidur(CatatanHarian):
 
     def durasi_jam(self):
         selisih = self.menit_bangun - self.menit_tidur
-        if selisih <= 0:  # tidur melewati tengah malam
+        # Kalau jam bangun lebih kecil atau sama dengan jam tidur, berarti tidurnya melewati
+        # tengah malam, jadi hasilnya ditambah 24 jam.
+        if selisih <= 0:
             selisih += 24 * 60
         return selisih / 60
 
@@ -161,6 +168,8 @@ class CatatanVital(CatatanHarian):
         return self._status
 
     def cek_vital(self):
+        # Semua nilai yang keluar batas dikumpulkan dulu supaya pesan peringatannya menyebut
+        # semuanya sekaligus, bukan hanya yang pertama ketemu.
         masalah = []
         if not 90 <= self.sistolik <= 140:
             masalah.append(f"sistolik {self.sistolik} (normal 90-140)")
@@ -169,6 +178,8 @@ class CatatanVital(CatatanHarian):
         if not 60 <= self.detak_jantung <= 100:
             masalah.append(f"detak jantung {self.detak_jantung} (normal 60-100)")
         if masalah:
+            # Status diubah sebelum exception dilempar, supaya catatan tetap tercatat sebagai
+            # ABNORMAL walaupun pemanggilnya menangkap exception lalu melanjutkan program.
             self._status = "ABNORMAL"
             raise AbnormalVitalException("Di luar batas normal: " + "; ".join(masalah))
 

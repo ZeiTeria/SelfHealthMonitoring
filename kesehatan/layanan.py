@@ -71,6 +71,8 @@ class LayananKesehatan:
     def catat_vital(self, tanggal, sistolik, diastolik, detak_jantung):
         self._wajib_profil()
         catatan = CatatanVital(tanggal, sistolik, diastolik, detak_jantung)
+        # Exception hanya ditangkap di sini untuk diubah menjadi pesan peringatan. Penyimpanan ke
+        # database ada di finally supaya catatan abnormal tetap masuk.
         peringatan = None
         try:
             catatan.cek_vital()
@@ -109,6 +111,7 @@ class LayananKesehatan:
         return hasil
 
     def isi_data_contoh(self):
+        # Isinya sama dengan data contoh di laporan, supaya angka di layar bisa dicocokkan.
         self.database.kosongkan()
         self.buat_profil("Budi", 20, 170, 72, "L", 65, 2)
         jalan_kaki = self.database.daftar_aktivitas()[0][0]

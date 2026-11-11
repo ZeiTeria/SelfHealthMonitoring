@@ -24,6 +24,9 @@ def buat_app(path_db="kesehatan.db"):
             g.layanan = LayananKesehatan(Database(app.config["PATH_DB"]))
         return g.layanan
 
+    # Perlindungan CSRF: setiap form membawa token acak yang disimpan di sesi pengguna. Permintaan
+    # POST tanpa token yang cocok ditolak, supaya halaman dari situs lain tidak bisa mengirim data
+    # atas nama pengguna.
     @app.before_request
     def periksa_token():
         if request.method == "POST":
@@ -64,6 +67,8 @@ def buat_app(path_db="kesehatan.db"):
             raise ValueError("Format jam salah, gunakan HH:MM")
 
     def baris(c):
+        # tampilkan() mencetak ke layar, jadi hasil cetaknya ditangkap dulu lalu dipakai sebagai
+        # teks di tabel. Dengan begitu format tampilan di web sama dengan di terminal.
         buffer = io.StringIO()
         with redirect_stdout(buffer):
             c.tampilkan()

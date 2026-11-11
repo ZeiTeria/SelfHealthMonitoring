@@ -1,6 +1,7 @@
 import sys
 
 
+# Tanpa argumen, program berjalan sebagai web. Dengan --konsol, yang jalan adalah versi terminal.
 def main():
     if "--konsol" in sys.argv:
         from kesehatan import AplikasiKesehatan

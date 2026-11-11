@@ -1,3 +1,5 @@
+# Kelas induk untuk semua jenis olahraga. Tiap olahraga punya nilai MET sendiri, yaitu
+# ukuran seberapa berat olahraga itu dibandingkan dengan duduk diam.
 class AktivitasFisik:
     def __init__(self, nama, met):
         self._nama = nama
@@ -12,10 +14,13 @@ class AktivitasFisik:
         return self._met
 
     def hitung_kalori(self, berat, durasi_menit):
-        # kalori = MET x berat (kg) x durasi (jam)
+        # Kalori terbakar = MET x berat badan (kg) x lama olahraga (jam). Durasi dari pengguna
+        # dalam menit, jadi dibagi 60 dulu supaya menjadi jam.
         return self.met * berat * (durasi_menit / 60)
 
 
+# Empat kelas di bawah ini tidak punya logika baru. Mereka hanya mengisi nama dan nilai MET
+# lewat super().__init__(), sisanya diwarisi dari AktivitasFisik.
 class JalanKaki(AktivitasFisik):
     def __init__(self):
         super().__init__("Jalan Kaki", 3.5)

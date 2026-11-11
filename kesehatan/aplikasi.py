@@ -112,6 +112,8 @@ class AplikasiKesehatan:
         hari_ini = list(catatan_tanggal(self.daftar_catatan, tanggal))
         total_masuk = sum([c.kalori_masuk() for c in hari_ini])
         total_olahraga = sum([c.kalori_keluar() for c in hari_ini])
+        # Kebutuhan dasar memakai TDEE level 1 (tanpa olahraga), karena kalori olahraga
+        # dijumlahkan terpisah dari catatan aktivitas.
         kebutuhan = self.pengguna.hitung_tdee(1)
         selisih = total_masuk - (kebutuhan + total_olahraga)
         print(f"Kalori masuk     : {total_masuk:.0f} kkal")
@@ -146,12 +148,15 @@ class AplikasiKesehatan:
             print(f"PERINGATAN: {e}")
             print("Saran: istirahat, ukur ulang, dan konsultasikan ke dokter bila berlanjut.")
         finally:
+            # finally selalu dijalankan, jadi catatan tersimpan baik nilainya normal maupun abnormal.
             self.daftar_catatan.append(catatan)
 
     def lihat_catatan(self):
         if not self.daftar_catatan:
             print("Belum ada catatan.")
             return
+        # Setiap catatan dipanggil dengan tampilkan() yang sama, tetapi hasilnya berbeda karena
+        # tiap kelas menulis ulang method itu (polymorphism).
         for catatan in RiwayatCatatan(self.daftar_catatan):
             catatan.tampilkan()
         pantau = pemantau_vital()
@@ -162,6 +167,8 @@ class AplikasiKesehatan:
         print(f"Ringkasan tanda vital: {hasil[0]} abnormal dari {hasil[1]} pemeriksaan")
 
     def isi_data_contoh(self):
+        # Data contoh sama dengan yang dipakai di laporan (Budi, 8-9 Oktober 2026), supaya hasil di
+        # layar bisa dicocokkan dengan angka di laporan.
         if self.pengguna is not None:
             jawab = input("Profil dan catatan yang ada akan diganti data contoh. Lanjut? (y/n): ")
             if jawab.strip().lower() != "y":

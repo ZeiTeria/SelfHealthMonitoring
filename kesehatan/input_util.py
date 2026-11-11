@@ -1,6 +1,8 @@
 from datetime import datetime
 
 
+# Fungsi-fungsi input di bawah mengulang pertanyaan sampai pengguna mengisi nilai yang benar,
+# jadi program tidak langsung error kalau yang diketik ternyata huruf.
 def input_int(prompt):
     while True:
         try:
