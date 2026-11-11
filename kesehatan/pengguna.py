@@ -1,4 +1,6 @@
 FAKTOR_AKTIVITAS = {1: 1.2, 2: 1.375, 3: 1.55, 4: 1.725, 5: 1.9}
+KKAL_PER_KG = 7700
+PENYESUAIAN_HARIAN = 500
 NAMA_LEVEL = {1: "Sedentari (jarang olahraga)", 2: "Ringan (1-3 hari/minggu)",
               3: "Sedang (3-5 hari/minggu)", 4: "Berat (6-7 hari/minggu)",
               5: "Sangat berat (fisik berat/2x sehari)"}
@@ -118,3 +120,19 @@ class Pengguna:
         if level not in FAKTOR_AKTIVITAS:
             raise ValueError("Level aktivitas harus 1-5")
         return self.hitung_bmr() * FAKTOR_AKTIVITAS[level]
+
+    def rencana_target(self):
+        selisih = self.berat - self.target_berat
+        tdee = self.hitung_tdee()
+        if abs(selisih) < 0.1:
+            return {"arah": "tetap", "kalori_harian": tdee, "penyesuaian": 0, "perkiraan_minggu": 0}
+        if selisih > 0:
+            arah = "turun"
+            kalori = max(tdee - PENYESUAIAN_HARIAN, self.hitung_bmr())
+        else:
+            arah = "naik"
+            kalori = tdee + PENYESUAIAN_HARIAN
+        penyesuaian = abs(kalori - tdee)
+        hari = abs(selisih) * KKAL_PER_KG / penyesuaian
+        return {"arah": arah, "kalori_harian": kalori, "penyesuaian": penyesuaian,
+                "perkiraan_minggu": hari / 7}

@@ -59,6 +59,10 @@ class AplikasiKesehatan:
             print(f"Perlu naik {-selisih:.1f} kg untuk mencapai target {p.target_berat} kg")
         else:
             print("Berat badan sudah sama dengan target.")
+        r = p.rencana_target()
+        if r["arah"] != "tetap":
+            print(f"Target asupan harian: {r['kalori_harian']:.0f} kkal "
+                  f"({r['penyesuaian']:.0f} kkal dari TDEE), perkiraan {r['perkiraan_minggu']:.0f} minggu")
 
     def menu_bmr_tdee(self):
         if not self.ada_profil():
@@ -164,22 +168,19 @@ class AplikasiKesehatan:
                 print("Dibatalkan.")
                 return
             self._daftar_catatan = []
-        self._pengguna = Pengguna("Contoh", 20, 170, 70, "L", 65, 2)
-        t = datetime(2026, 10, 9)
-        vital = CatatanVital(t, 150, 95, 110)
+        self._pengguna = Pengguna("Budi", 20, 170, 72, "L", 65, 2)
+        hari = datetime(2026, 10, 9)
+        vital = CatatanVital(hari, 120, 80, 75)
+        vital.cek_vital()
         self._daftar_catatan += [
-            CatatanBerat(t, 70),
-            CatatanAktivitas(t, self.daftar_aktivitas[1], 30, 70),
-            CatatanMakanan(t, "Nasi goreng", 600),
-            CatatanMakanan(t, "Ayam bakar", 450),
-            CatatanTidur(t, time(23, 30), time(6, 0)),
+            CatatanBerat(datetime(2026, 10, 8), 72.5),
+            CatatanMakanan(hari, "Roti & susu", 400),
+            CatatanMakanan(hari, "Ayam bakar", 550),
+            CatatanAktivitas(hari, self.daftar_aktivitas[0], 45, 72),
+            CatatanTidur(hari, time(23, 0), time(6, 0)),
             vital,
         ]
-        try:
-            vital.cek_vital()
-        except AbnormalVitalException:
-            pass
-        print("Data contoh terisi (profil + 6 catatan, tanggal 2026-10-09).")
+        print("Data contoh terisi (profil Budi + 6 catatan, 8-9 Oktober 2026).")
 
     def tampil_menu(self):
         print("\n=== MONITORING KESEHATAN PRIBADI ===")
