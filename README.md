@@ -1,6 +1,6 @@
 # SelfHealthMonitoring
 
-Aplikasi Monitoring Kesehatan Pribadi berbasis Python (konsol).
+Aplikasi Monitoring Kesehatan Pribadi berbasis Python, dengan tampilan web (Flask) dan database SQLite.
 Proyek UTS Perancangan dan Pemrograman Berorientasi Objek, Kelompok 8, IF-A Sore, Universitas Mikroskil.
 
 ## Fitur (F1-F10)
@@ -15,6 +15,10 @@ Proyek UTS Perancangan dan Pemrograman Berorientasi Objek, Kelompok 8, IF-A Sore
 9. Catat tanda vital (sistolik, diastolik, detak jantung)
 10. `AbnormalVitalException` jika tanda vital di luar batas normal
 
+Tambahan: rencana mencapai target berat (target asupan kalori harian, TDEE dikurangi atau ditambah 500 kkal tanpa turun di bawah BMR, dan perkiraan lama dalam minggu).
+
+Semua data disimpan di database SQLite (`kesehatan.db`, dibuat otomatis) dan halaman "Database" menampilkan isi tabelnya.
+
 ## Konsep OOP
 - Kelas dan objek, encapsulation (atribut privat dengan `@property`)
 - Inheritance dan abstract class (`CatatanHarian`, `AktivitasFisik`)
@@ -23,26 +27,40 @@ Proyek UTS Perancangan dan Pemrograman Berorientasi Objek, Kelompok 8, IF-A Sore
 - Iterator (`RiwayatCatatan` dengan `__iter__` dan `__next__`), generator, dan coroutine
 
 ## Struktur proyek
-    main.py                  titik masuk aplikasi
+    main.py                  titik masuk: web (default) atau terminal (--konsol)
     driver_demo.py           demo polymorphism, encapsulation, exception, iterator
-    test_kesehatan.py        pengujian otomatis
+    test_kesehatan.py        pytest: kelas-kelas model
+    test_web.py              pytest: database, layanan, dan halaman web
+    requirements.txt         daftar library (Flask)
     kesehatan/
         exceptions.py        AbnormalVitalException
         aktivitas.py         AktivitasFisik dan turunannya (MET)
-        pengguna.py          Pengguna: BMI, BMR, TDEE
+        pengguna.py          Pengguna: BMI, BMR, TDEE, rencana target
         catatan.py           CatatanHarian (abstract) dan lima catatan turunannya
         iterasi.py           RiwayatCatatan (iterator), generator, coroutine
-        input_util.py        fungsi bantu input
-        aplikasi.py          AplikasiKesehatan: menu dan fitur F1-F10
+        database.py          Database: penyimpanan SQLite
+        layanan.py           LayananKesehatan: logika yang dipakai halaman web
+        input_util.py        fungsi bantu input (versi terminal)
+        aplikasi.py          AplikasiKesehatan: menu terminal
+    web/
+        app.py               rute Flask (dengan perlindungan CSRF)
+        templates/           halaman HTML (Jinja)
+        static/              style.css dan logo
 
 ## Cara menjalankan
-Butuh Python 3.8 ke atas, tanpa library tambahan.
+Butuh Python 3.8 ke atas.
 
-    python main.py             # aplikasi dengan menu
+    pip install -r requirements.txt
+    python main.py             # buka http://127.0.0.1:5000 di browser
+    python main.py --konsol    # versi terminal (tanpa Flask dan tanpa database)
     python driver_demo.py      # demo polymorphism, encapsulation, exception, iterator
-    python test_kesehatan.py   # pengujian otomatis, hasilnya OK
 
-Menu 11 (Isi Data Contoh) mengisi profil dan catatan contoh supaya fitur bisa langsung dicoba.
+Pengujian (butuh pytest):
+
+    pip install pytest
+    python -m pytest
+
+Di halaman Beranda ada tombol "Isi data contoh" untuk mengisi profil dan catatan contoh supaya semua fitur bisa langsung dicoba.
 
 ## Catatan
-Data disimpan di memori selama program berjalan. Aplikasi ini alat bantu pencatatan, bukan alat diagnosis medis.
+Aplikasi ini alat bantu pencatatan, bukan alat diagnosis medis.
