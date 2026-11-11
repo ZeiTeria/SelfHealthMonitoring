@@ -65,8 +65,8 @@ class CatatanAktivitas(CatatanHarian):
         return self._kalori_terbakar
 
     def tampilkan(self):
-        print(f"[{self.tgl()}] Aktivitas   : {self.aktivitas.nama} {self.durasi_menit} menit, "
-              f"terbakar {self.kalori_terbakar:.0f} kkal")
+        print(f"[{self.tgl()}] Aktivitas   : {self.aktivitas.nama} {self.durasi_menit} menit "
+              f"(MET {self.aktivitas.met}) = {self.kalori_terbakar:.0f} kkal terbakar")
 
     def kalori_keluar(self):
         return self.kalori_terbakar
@@ -91,7 +91,7 @@ class CatatanMakanan(CatatanHarian):
         return self._kalori
 
     def tampilkan(self):
-        print(f"[{self.tgl()}] Makanan     : {self.nama_makanan}, {self.kalori:.0f} kkal")
+        print(f"[{self.tgl()}] Makanan     : {self.nama_makanan} = {self.kalori:.0f} kkal")
 
     def kalori_masuk(self):
         return self.kalori
@@ -173,5 +173,5 @@ class CatatanVital(CatatanHarian):
             raise AbnormalVitalException("Di luar batas normal: " + "; ".join(masalah))
 
     def tampilkan(self):
-        print(f"[{self.tgl()}] Tanda vital : {self.sistolik}/{self.diastolik} mmHg, "
-              f"{self.detak_jantung} bpm -> {self.status}")
+        print(f"[{self.tgl()}] Tanda Vital : {self.sistolik}/{self.diastolik} mmHg, "
+              f"nadi {self.detak_jantung} bpm ({self.status})")
