@@ -1,5 +1,3 @@
-"""P01: profil pengguna, BMI, BMR, TDEE (F1-F3), encapsulation dengan @property."""
-
 FAKTOR_AKTIVITAS = {1: 1.2, 2: 1.375, 3: 1.55, 4: 1.725, 5: 1.9}
 NAMA_LEVEL = {1: "Sedentari (jarang olahraga)", 2: "Ringan (1-3 hari/minggu)",
               3: "Sedang (3-5 hari/minggu)", 4: "Berat (6-7 hari/minggu)",
@@ -8,7 +6,6 @@ NAMA_LEVEL = {1: "Sedentari (jarang olahraga)", 2: "Ringan (1-3 hari/minggu)",
 
 class Pengguna:
     def __init__(self, nama, usia, tinggi, berat, jenis_kelamin, target_berat, level_aktivitas):
-        # semua validasi ada di setter, jadi constructor dan perubahan nilai aturannya sama
         self.nama = nama
         self.usia = usia
         self.tinggi = tinggi
@@ -114,7 +111,7 @@ class Pengguna:
         bmr = 10 * self.berat + 6.25 * self.tinggi - 5 * self.usia
         return bmr + 5 if self.jenis_kelamin == "L" else bmr - 161
 
-    # P03: overloading dengan default parameter (level 0 = pakai level pengguna)
+    # level 0 = pakai level pengguna
     def hitung_tdee(self, level=0):
         if level == 0:
             level = self.level_aktivitas

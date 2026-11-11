@@ -1,6 +1,3 @@
-"""P02: inheritance jenis aktivitas fisik dan nilai MET."""
-
-
 class AktivitasFisik:
     def __init__(self, nama, met):
         self._nama = nama

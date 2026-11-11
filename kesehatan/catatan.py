@@ -1,4 +1,3 @@
-"""P03: abstract class CatatanHarian dan lima kelas turunannya (polymorphism)."""
 from abc import ABC, abstractmethod
 from datetime import time
 
