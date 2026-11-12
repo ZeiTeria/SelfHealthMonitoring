@@ -115,7 +115,7 @@ class LayananKesehatan:
     def isi_data_contoh(self):
         # Isinya sama dengan data contoh di laporan, supaya angka di layar bisa dicocokkan.
         self.database.kosongkan()
-        self.buat_profil("Nicholas", 20, 175, 81, "L", 75, 2)
+        self.buat_profil("Nicholas", 19, 175, 81, "L", 75, 2)
         jalan_kaki = self.database.daftar_aktivitas()[0][0]
         hari = datetime(2026, 10, 9)
         self.database.simpan_catatan(CatatanBerat(datetime(2026, 10, 8), 81.5))

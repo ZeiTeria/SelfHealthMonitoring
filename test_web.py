@@ -42,8 +42,8 @@ def test_data_contoh_dan_defisit(layanan):
     layanan.isi_data_contoh()
     assert layanan.pengguna.nama == "Nicholas" and len(layanan.database.muat_catatan()) == 6
     hasil = layanan.defisit_surplus(datetime(2026, 10, 9))
-    assert (hasil["masuk"], hasil["olahraga"], hasil["kebutuhan"]) == (950, 212.625, 2170.5)
-    assert hasil["status"] == "DEFISIT" and hasil["selisih"] == -1433.125
+    assert (hasil["masuk"], hasil["olahraga"], hasil["kebutuhan"]) == (950, 212.625, 2176.5)
+    assert hasil["status"] == "DEFISIT" and hasil["selisih"] == -1439.125
 
 
 def test_riwayat_urut_tanggal_dan_ringkasan_vital(layanan):
@@ -108,9 +108,9 @@ def test_profil_tidak_valid_menampilkan_pesan(web):
 def test_halaman_berisi_hasil_data_contoh(web):
     web.kirim("/data-contoh")
     beranda = teks(web.get("/"))
-    assert "Nicholas" in beranda and "DEFISIT 1433 kkal" in beranda and "1987 kkal" in beranda
+    assert "Nicholas" in beranda and "DEFISIT 1439 kkal" in beranda and "1994 kkal" in beranda
     hitung = teks(web.get("/hitung"))
-    assert "26.45" in hitung and "2487" in hitung and "Target asupan harian" in hitung
+    assert "26.45" in hitung and "2494" in hitung and "Target asupan harian" in hitung
 
 
 def test_vital_abnormal_dan_normal(web):

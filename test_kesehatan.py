@@ -11,7 +11,7 @@ HARI = datetime(2026, 10, 9)
 
 @pytest.fixture
 def nicholas():
-    return Pengguna("Nicholas", 20, 175, 81, "L", 75, 2)
+    return Pengguna("Nicholas", 19, 175, 81, "L", 75, 2)
 
 
 def test_bmi_dan_kategori(nicholas):
@@ -31,13 +31,13 @@ def test_batas_bmi(bmi, kategori):
 
 
 def test_bmr_mifflin_st_jeor(nicholas):
-    assert nicholas.hitung_bmr() == 1808.75
+    assert nicholas.hitung_bmr() == 1813.75
     assert Pengguna("B", 20, 160, 50, "P", 50, 1).hitung_bmr() == 500 + 1000 - 100 - 161
 
 
 def test_tdee_default_dan_level(nicholas):
-    assert nicholas.hitung_tdee() == 1808.75 * 1.375
-    assert nicholas.hitung_tdee(1) == 2170.5
+    assert nicholas.hitung_tdee() == 1813.75 * 1.375
+    assert nicholas.hitung_tdee(1) == 2176.5
     with pytest.raises(ValueError):
         nicholas.hitung_tdee(9)
 
@@ -120,7 +120,7 @@ def test_coroutine_ringkasan_vital():
 
 def test_rencana_target_turun(nicholas):
     r = nicholas.rencana_target()
-    assert r["arah"] == "turun" and round(r["kalori_harian"]) == 1987 and r["penyesuaian"] == 500
+    assert r["arah"] == "turun" and round(r["kalori_harian"]) == 1994 and r["penyesuaian"] == 500
     assert round(r["perkiraan_minggu"], 1) == 13.2
 
 

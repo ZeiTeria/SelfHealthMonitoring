@@ -186,7 +186,7 @@ class AplikasiKesehatan:
                 print("Dibatalkan.")
                 return
             self._daftar_catatan = []
-        self._pengguna = Pengguna("Nicholas", 20, 175, 81, "L", 75, 2)
+        self._pengguna = Pengguna("Nicholas", 19, 175, 81, "L", 75, 2)
         hari = datetime(2026, 10, 9)
         vital = CatatanVital(hari, 120, 80, 75)
         self._daftar_catatan += [

@@ -23,7 +23,7 @@ for a in (JalanKaki(), Lari(), Bersepeda(), Berenang()):
     print(f"   {a.nama:<10} MET {a.met:<4} intensitas {a.intensitas()}")
 
 print("\n=== 2. Encapsulation (atribut privat + property) ===")
-p = Pengguna("Nicholas", 20, 175, 81, "L", 75, 2)
+p = Pengguna("Nicholas", 19, 175, 81, "L", 75, 2)
 print("berat lewat property :", p.berat)
 p.berat = 80
 print("berat setelah setter :", p.berat)
