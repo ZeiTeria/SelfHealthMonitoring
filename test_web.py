@@ -156,6 +156,10 @@ def test_hapus_catatan_yang_tidak_ada_ditolak(layanan):
         layanan.database.hapus_catatan("catatan_berat", 999)
 
 
+def test_hapus_id_terlalu_besar_tidak_crash(web):
+    assert web.kirim("/hapus/catatan_berat/99999999999999999999").status_code == 302
+
+
 def test_tahun_tidak_valid_ditolak_di_web(web):
     web.kirim("/profil", PROFIL)
     hasil = web.kirim("/berat", {"tanggal": "0999-01-01", "berat": "70"})

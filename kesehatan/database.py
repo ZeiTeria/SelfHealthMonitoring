@@ -153,6 +153,9 @@ class Database:
         # Nama tabel tidak bisa dikirim lewat tanda tanya (?), jadi dicocokkan dulu dengan daftar tabel yang diizinkan sebelum dimasukkan ke query.
         if tabel not in TABEL_CATATAN.values():
             raise ValueError("Tabel tidak dikenal")
+        # id lebih besar dari batas integer SQLite pasti tidak ada, jadi langsung dianggap tidak ditemukan.
+        if not 0 < id_catatan < 2 ** 63:
+            raise ValueError("Catatan tidak ditemukan")
         cur = self.koneksi.execute(f"DELETE FROM {tabel} WHERE id = ?", (id_catatan,))
         self.koneksi.commit()
         if cur.rowcount == 0:

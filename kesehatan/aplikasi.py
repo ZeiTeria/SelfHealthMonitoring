@@ -216,17 +216,18 @@ class AplikasiKesehatan:
                 "10": self.lihat_catatan, "11": self.isi_data_contoh}
         while True:
             self.tampil_menu()
-            pilih = input("Pilih: ").strip()
-            if pilih == "0":
-                print("Sampai jumpa!")
-                break
-            if pilih not in menu:
-                print("Menu tidak tersedia!")
-                continue
             try:
+                pilih = input("Pilih: ").strip()
+                if pilih == "0":
+                    print("Sampai jumpa!")
+                    break
+                if pilih not in menu:
+                    print("Menu tidak tersedia!")
+                    continue
                 menu[pilih]()
             except ValueError as e:
                 print(f"Gagal: {e}")
-            except EOFError:
+            except (EOFError, KeyboardInterrupt):
+                # Ctrl+D atau Ctrl+C di mana saja menutup program dengan rapi, tanpa pesan error.
                 print("\nInput berakhir, program ditutup.")
                 break

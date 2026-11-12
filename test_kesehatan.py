@@ -183,3 +183,11 @@ def test_aktivitas_fisik_abstract_dan_intensitas():
     with pytest.raises(TypeError):
         AktivitasFisik("X", 1.0)
     assert Lari().intensitas() == "Berat"
+
+
+def test_ctrl_d_di_menu_utama_menutup_program(monkeypatch):
+    from kesehatan import AplikasiKesehatan
+    def habis(_=""):
+        raise EOFError
+    monkeypatch.setattr("builtins.input", habis)
+    AplikasiKesehatan().jalankan()
