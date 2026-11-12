@@ -160,6 +160,15 @@ def test_hapus_id_terlalu_besar_tidak_crash(web):
     assert web.kirim("/hapus/catatan_berat/99999999999999999999").status_code == 302
 
 
+def test_tombol_hapus_di_halaman_membawa_token_dan_berhasil(web):
+    import re
+    web.kirim("/data-contoh")
+    html = teks(web.get("/catatan"))
+    form = re.search(r'action="(/hapus/[^"]+)">\s*<input type="hidden" name="csrf" value="([^"]*)"', html)
+    assert form.group(2)
+    assert web.post(form.group(1), data={"csrf": form.group(2)}).status_code == 302
+
+
 def test_tahun_tidak_valid_ditolak_di_web(web):
     web.kirim("/profil", PROFIL)
     hasil = web.kirim("/berat", {"tanggal": "0999-01-01", "berat": "70"})
