@@ -1,5 +1,4 @@
 from datetime import datetime, time
-import os
 from .aktivitas import Berenang, Bersepeda, JalanKaki, Lari
 from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur, CatatanVital)
 from .exceptions import AbnormalVitalException
@@ -200,7 +199,6 @@ class AplikasiKesehatan:
         print("Data contoh terisi (profil Nicholas + 6 catatan, 8-9 Oktober 2026).")
 
     def tampil_menu(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
         print("\n=== MONITORING KESEHATAN PRIBADI ===")
         print(" 1. Buat Profil              7. Defisit/Surplus Kalori")
         print(" 2. BMI & Kategori           8. Log Pola Tidur")
