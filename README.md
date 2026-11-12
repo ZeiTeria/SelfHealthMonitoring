@@ -17,7 +17,7 @@ Proyek UTS Perancangan dan Pemrograman Berorientasi Objek, Kelompok 8, IF-A Sore
 
 Tambahan: rencana mencapai target berat (target asupan kalori harian, TDEE dikurangi atau ditambah 500 kkal tanpa turun di bawah BMR, dan perkiraan lama dalam minggu).
 
-Semua data disimpan di database SQLite (`kesehatan.db`, dibuat otomatis) dan halaman "Database" menampilkan isi tabelnya.
+Pada versi web, semua data disimpan di database SQLite (`kesehatan.db`, dibuat otomatis) dan halaman "Database" menampilkan isi tabelnya. Versi terminal (`--konsol`) menyimpan data di memori saja, jadi hilang saat program ditutup.
 
 ## Konsep OOP
 - Kelas dan objek, encapsulation (atribut privat dengan `@property`)
@@ -63,7 +63,7 @@ Pengujian (butuh pytest):
     pip install pytest
     python -m pytest
 
-Di halaman Beranda ada tombol "Isi data contoh" untuk mengisi profil dan catatan contoh supaya semua fitur bisa langsung dicoba.
+Tombol "Isi data contoh" ada di halaman Beranda (saat belum ada profil) dan di halaman Profil. Tombol ini mengisi profil dan catatan contoh supaya semua fitur bisa langsung dicoba.
 
 ## Catatan
 Aplikasi ini alat bantu pencatatan, bukan alat diagnosis medis.

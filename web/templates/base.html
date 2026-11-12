@@ -1,40 +1,48 @@
 <!doctype html>
 <html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block judul %}Beranda{% endblock %} - Monitoring Kesehatan Pribadi</title>
-<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-{% set menu = [
-  ('Ringkasan', [('beranda','Beranda'),('profil','Profil'),('hitung','BMI & TDEE')]),
-  ('Pencatatan', [('berat','Berat badan'),('aktivitas','Aktivitas'),('makanan','Makanan'),('tidur','Tidur'),('vital','Tanda vital')]),
-  ('Analisis', [('defisit','Defisit / surplus'),('catatan','Semua catatan')]),
-  ('Data', [('database','Database')])] %}
-<div class="tata">
-  <aside class="samping"><div class="lekat">
-    <a class="merek" href="{{ url_for('beranda') }}"><img src="{{ url_for('static', filename='logo.png') }}" alt=""><span>Kesehatan<br>Pribadi</span></a>
-    <nav>
-      {% for grup, item in menu %}
-      <p class="grup">{{ grup }}</p>
-      {% for rute, nama in item %}<a href="{{ url_for(rute) }}" {% if request.endpoint == rute %}class="aktif" aria-current="page"{% endif %}>{{ nama }}</a>{% endfor %}
-      {% endfor %}
-    </nav>
-  </div></aside>
-  <div class="isi">
-    <main>
-      {% for kategori, pesan in get_flashed_messages(with_categories=true) %}
-      <div class="pesan {{ kategori }}" role="status">{{ pesan }}</div>
-      {% endfor %}
-      {% block isi %}{% endblock %}
-    </main>
-    <footer>
-      <span><strong>Aplikasi Monitoring Kesehatan Pribadi</strong> · alat bantu pencatatan, bukan alat diagnosis medis</span>
-      <span>Made by : Kelompok 8</span>
-    </footer>
-  </div>
-</div>
-</body>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{% block judul %}Beranda{% endblock %} - Monitoring Kesehatan Pribadi</title>
+		<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	</head>
+	<body>
+		{% set menu = [
+			('Ringkasan', [('beranda','Beranda'),('profil','Profil'),('hitung','BMI & TDEE')]),
+			('Pencatatan', [('berat','Berat badan'),('aktivitas','Aktivitas'),('makanan','Makanan'),('tidur','Tidur'),('vital','Tanda vital')]),
+			('Analisis', [('defisit','Defisit / surplus'),('catatan','Semua catatan')]),
+			('Data', [('database','Database')])
+		] %}
+		<div class="tata">
+			<aside class="samping">
+				<div class="lekat">
+					<a class="merek" href="{{ url_for('beranda') }}">
+						<img src="{{ url_for('static', filename='logo.png') }}" alt="">
+						<span>Kesehatan<br>Pribadi</span>
+					</a>
+					<nav>
+						{% for grup, item in menu %}
+							<p class="grup">{{ grup }}</p>
+							{% for rute, nama in item %}
+								<a href="{{ url_for(rute) }}" {% if request.endpoint == rute %}class="aktif" aria-current="page"{% endif %}>{{ nama }}</a>
+							{% endfor %}
+						{% endfor %}
+					</nav>
+				</div>
+			</aside>
+			<div class="isi">
+				<main>
+					{% for kategori, pesan in get_flashed_messages(with_categories=true) %}
+						<div class="pesan {{ kategori }}" role="status">{{ pesan }}</div>
+					{% endfor %}
+					{% block isi %}{% endblock %}
+				</main>
+				<footer>
+					<span><strong>Aplikasi Monitoring Kesehatan Pribadi</strong> · alat bantu pencatatan, bukan alat diagnosis medis</span>
+					<span>Made by : Kelompok 8</span>
+				</footer>
+			</div>
+		</div>
+	</body>
 </html>

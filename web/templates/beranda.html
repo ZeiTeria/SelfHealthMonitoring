@@ -1,50 +1,77 @@
 {% extends "base.html" %}
-{% block judul %}Beranda{% endblock %}
-{% block isi %}
-{% if not tubuh %}
-<h1>Selamat datang</h1>
-<p class="ket">Aplikasi ini membantu mencatat berat badan, aktivitas, makanan, tidur, dan tanda vital setiap hari, lalu menghitung BMI, kebutuhan kalori, dan selisih kalori harianmu. Mulai dengan membuat profil.</p>
-<div class="aksi">
-  <a class="tombol" href="{{ url_for('profil') }}">Buat profil</a>
-  <form method="post" action="{{ url_for('data_contoh') }}"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="sekunder" type="submit">Isi data contoh</button></form>
-</div>
-{% else %}
-<h1>Ringkasan</h1>
-<p class="ket">Halo, {{ tubuh.pengguna.nama }}. Ini kondisimu berdasarkan profil dan catatan terakhir.</p>
-<dl class="deret">
-  <div><dt>BMI</dt><dd>{{ '%.1f'|format(tubuh.bmi) }}<small class="tanda {{ tubuh.kategori|lower }}">{{ tubuh.kategori }}</small></dd></div>
-  <div><dt>BMR</dt><dd>{{ '%.0f'|format(tubuh.bmr) }}<small>kkal per hari</small></dd></div>
-  <div><dt>TDEE</dt><dd>{{ '%.0f'|format(tubuh.pengguna.hitung_tdee()) }}<small>kkal per hari</small></dd></div>
-  <div><dt>Berat</dt><dd>{{ tubuh.pengguna.berat }} kg<small>{% if tubuh.selisih_target > 0 %}turun {{ '%.1f'|format(tubuh.selisih_target) }} kg ke target{% elif tubuh.selisih_target < 0 %}naik {{ '%.1f'|format(-tubuh.selisih_target) }} kg ke target{% else %}sudah di target{% endif %}</small></dd></div>
-</dl>
-{% if tubuh.rencana.arah != 'tetap' %}
-<p class="sub">Target asupan harian untuk {{ tubuh.rencana.arah }} ke {{ tubuh.pengguna.target_berat }} kg: <strong>{{ '%.0f'|format(tubuh.rencana.kalori_harian) }} kkal</strong>, perkiraan {{ '%.0f'|format(tubuh.rencana.perkiraan_minggu) }} minggu. <a href="{{ url_for('hitung') }}">Lihat rencananya</a></p>
-{% endif %}
-<div class="dua">
-  <section>
-    <h2>Kalori{% if terakhir %} · {{ terakhir.strftime('%Y-%m-%d') }}{% endif %}</h2>
-    {% if kalori %}
-    <p class="besar {{ kalori.status|lower }}">{{ kalori.status }} {{ '%.0f'|format(kalori.selisih|abs) }} kkal</p>
-    <p class="sub">Masuk {{ '%.0f'|format(kalori.masuk) }} · kebutuhan dasar {{ '%.0f'|format(kalori.kebutuhan) }} · olahraga {{ '%.0f'|format(kalori.olahraga) }} kkal</p>
-    <p><a href="{{ url_for('defisit', tanggal=terakhir.strftime('%Y-%m-%d')) }}">Lihat rinciannya</a></p>
-    {% else %}<p class="kosong">Belum ada catatan.</p>{% endif %}
-  </section>
-  <section>
-    <h2>Tanda vital</h2>
-    {% if vital[1] %}
-    <p class="besar {% if vital[0] %}abnormal{% else %}normal{% endif %}">{{ vital[0] }} abnormal dari {{ vital[1] }} pemeriksaan</p>
-    {% else %}<p class="kosong">Belum ada pemeriksaan.</p>{% endif %}
-    <p><a href="{{ url_for('vital') }}">Catat tanda vital</a></p>
-  </section>
-</div>
-<h2>Catat sekarang</h2>
-<div class="aksi">
-  <a class="tombol sekunder" href="{{ url_for('berat') }}">Berat badan</a>
-  <a class="tombol sekunder" href="{{ url_for('aktivitas') }}">Aktivitas</a>
-  <a class="tombol sekunder" href="{{ url_for('makanan') }}">Makanan</a>
-  <a class="tombol sekunder" href="{{ url_for('tidur') }}">Tidur</a>
-  <a class="tombol sekunder" href="{{ url_for('vital') }}">Tanda vital</a>
-</div>
-<p class="sub">{{ jumlah }} catatan tersimpan di database.</p>
-{% endif %}
+
+{% block judul %}
+	Beranda
 {% endblock %}
+
+{% block isi %}
+	{% if not tubuh %}
+		<h1>Selamat datang</h1>
+		<p class="ket">Aplikasi ini membantu mencatat berat badan, aktivitas, makanan, tidur, dan tanda vital setiap hari, lalu menghitung BMI, kebutuhan kalori, dan selisih kalori harianmu. Mulai dengan membuat profil.</p>
+		<div class="aksi">
+			<a class="tombol" href="{{ url_for('profil') }}">Buat profil</a>
+			<form method="post" action="{{ url_for('data_contoh') }}">
+				<input type="hidden" name="csrf" value="{{ csrf_token }}">
+				<button class="sekunder" type="submit">Isi data contoh</button>
+			</form>
+		</div>
+	{% else %}
+		<h1>Ringkasan</h1>
+		<p class="ket">Halo, {{ tubuh.pengguna.nama }}. Ini kondisimu berdasarkan profil dan catatan terakhir.</p>
+		<dl class="deret">
+			<div>
+				<dt>BMI</dt>
+				<dd>{{ '%.1f'|format(tubuh.bmi) }}<small class="tanda {{ tubuh.kategori|lower }}">{{ tubuh.kategori }}</small></dd>
+			</div>
+			<div>
+				<dt>BMR</dt>
+				<dd>{{ '%.0f'|format(tubuh.bmr) }}<small>kkal per hari</small></dd>
+			</div>
+			<div>
+				<dt>TDEE</dt>
+				<dd>{{ '%.0f'|format(tubuh.pengguna.hitung_tdee()) }}<small>kkal per hari</small></dd>
+			</div>
+			<div>
+				<dt>Berat</dt>
+				<dd>{{ tubuh.pengguna.berat }} kg<small>{% if tubuh.selisih_target > 0 %}turun {{ '%.1f'|format(tubuh.selisih_target) }} kg ke target{% elif tubuh.selisih_target < 0 %}naik {{ '%.1f'|format(-tubuh.selisih_target) }} kg ke target{% else %}sudah di target{% endif %}</small></dd>
+			</div>
+		</dl>
+		{% if tubuh.rencana.arah != 'tetap' %}
+			<p class="sub">Target asupan harian untuk {{ tubuh.rencana.arah }} ke {{ tubuh.pengguna.target_berat }} kg: <strong>{{ '%.0f'|format(tubuh.rencana.kalori_harian) }} kkal</strong>, perkiraan {{ '%.0f'|format(tubuh.rencana.perkiraan_minggu) }} minggu. <a href="{{ url_for('hitung') }}">Lihat rencananya</a></p>
+		{% endif %}
+		<div class="dua">
+			<section>
+				<h2>Kalori{% if terakhir %} · {{ terakhir.strftime('%Y-%m-%d') }}{% endif %}</h2>
+				{% if kalori and kalori.masuk == 0 %}
+					<p class="kosong">Belum ada catatan makanan di tanggal ini, jadi selisih kalori belum bisa dihitung.</p>
+					<p><a href="{{ url_for('makanan') }}">Catat makanan</a></p>
+				{% elif kalori %}
+					<p class="besar {{ kalori.status|lower }}">{{ kalori.status }} {{ '%.0f'|format(kalori.selisih|abs) }} kkal</p>
+					<p class="sub">Masuk {{ '%.0f'|format(kalori.masuk) }} · kebutuhan tanpa olahraga {{ '%.0f'|format(kalori.kebutuhan) }} · olahraga {{ '%.0f'|format(kalori.olahraga) }} kkal</p>
+					<p><a href="{{ url_for('defisit', tanggal=terakhir.strftime('%Y-%m-%d')) }}">Lihat rinciannya</a></p>
+				{% else %}
+					<p class="kosong">Belum ada catatan.</p>
+				{% endif %}
+			</section>
+			<section>
+				<h2>Tanda vital</h2>
+				{% if vital[1] %}
+					<p class="besar {% if vital[0] %}abnormal{% else %}normal{% endif %}">{{ vital[0] }} abnormal dari {{ vital[1] }} pemeriksaan</p>
+				{% else %}
+					<p class="kosong">Belum ada pemeriksaan.</p>
+				{% endif %}
+				<p><a href="{{ url_for('vital') }}">Catat tanda vital</a></p>
+			</section>
+		</div>
+		<h2>Catat sekarang</h2>
+		<div class="aksi">
+			<a class="tombol sekunder" href="{{ url_for('berat') }}">Berat badan</a>
+			<a class="tombol sekunder" href="{{ url_for('aktivitas') }}">Aktivitas</a>
+			<a class="tombol sekunder" href="{{ url_for('makanan') }}">Makanan</a>
+			<a class="tombol sekunder" href="{{ url_for('tidur') }}">Tidur</a>
+			<a class="tombol sekunder" href="{{ url_for('vital') }}">Tanda vital</a>
+		</div>
+		<p class="sub">{{ jumlah }} catatan tersimpan di database.</p>
+	{% endif %}
+{% endblock %}
+

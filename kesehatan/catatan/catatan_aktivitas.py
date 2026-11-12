@@ -3,6 +3,8 @@ from .catatan_harian import CatatanHarian
 
 class CatatanAktivitas(CatatanHarian):
     def __init__(self, tanggal, aktivitas, durasi_menit, berat):
+        if not 10 <= berat <= 500:
+            raise ValueError("Berat harus 10-500 kg")
         if durasi_menit <= 0:
             raise ValueError("Durasi harus lebih dari 0 menit")
         if durasi_menit > 1440:

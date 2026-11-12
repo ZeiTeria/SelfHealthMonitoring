@@ -1,8 +1,7 @@
 from .catatan_harian import CatatanHarian
 
 
-# Di semua kelas catatan, atribut disimpan dengan awalan _ (privat) dan hanya bisa dibaca lewat
-# @property. Jadi catatan yang sudah dibuat tidak berubah tanpa sengaja.
+# Di semua kelas catatan, atribut disimpan dengan awalan _ (privat) dan hanya bisa dibaca lewat @property. Jadi catatan yang sudah dibuat tidak berubah tanpa sengaja.
 class CatatanBerat(CatatanHarian):
     def __init__(self, tanggal, berat):
         if not 10 <= berat <= 500:

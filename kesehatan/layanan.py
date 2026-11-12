@@ -1,7 +1,5 @@
 from datetime import datetime, time
-
-from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur,
-                      CatatanVital)
+from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur, CatatanVital)
 from .exceptions import AbnormalVitalException
 from .iterasi import RiwayatCatatan, catatan_tanggal, pemantau_vital
 from .pengguna import FAKTOR_AKTIVITAS, NAMA_LEVEL, Pengguna
@@ -42,9 +40,14 @@ class LayananKesehatan:
     def catat_berat(self, tanggal, berat):
         p = self._wajib_profil()
         catatan = CatatanBerat(tanggal, berat)
-        p.berat = berat
+        # Berat di profil hanya diganti kalau catatan ini yang paling baru, supaya mengisi catatan tanggal lama tidak menimpa berat terkini.
+        terbaru = max([c.tanggal for c in self.database.muat_catatan() if isinstance(c, CatatanBerat)], default=None)
+        mutakhir = terbaru is None or tanggal >= terbaru
+        if mutakhir:
+            p.berat = berat
         self.database.simpan_catatan(catatan)
-        self.database.simpan_pengguna(p)
+        if mutakhir:
+            self.database.simpan_pengguna(p)
         return catatan
 
     def catat_aktivitas(self, tanggal, id_aktivitas, durasi_menit):
@@ -71,8 +74,7 @@ class LayananKesehatan:
     def catat_vital(self, tanggal, sistolik, diastolik, detak_jantung):
         self._wajib_profil()
         catatan = CatatanVital(tanggal, sistolik, diastolik, detak_jantung)
-        # Exception hanya ditangkap di sini untuk diubah menjadi pesan peringatan. Penyimpanan ke
-        # database ada di finally supaya catatan abnormal tetap masuk.
+        # Exception hanya ditangkap di sini untuk diubah menjadi pesan peringatan. Penyimpanan ke database ada di finally supaya catatan abnormal tetap masuk.
         peringatan = None
         try:
             catatan.cek_vital()
@@ -113,10 +115,10 @@ class LayananKesehatan:
     def isi_data_contoh(self):
         # Isinya sama dengan data contoh di laporan, supaya angka di layar bisa dicocokkan.
         self.database.kosongkan()
-        self.buat_profil("Budi", 20, 170, 72, "L", 65, 2)
+        self.buat_profil("Nicholas", 20, 175, 81, "L", 75, 2)
         jalan_kaki = self.database.daftar_aktivitas()[0][0]
         hari = datetime(2026, 10, 9)
-        self.database.simpan_catatan(CatatanBerat(datetime(2026, 10, 8), 72.5))
+        self.database.simpan_catatan(CatatanBerat(datetime(2026, 10, 8), 81.5))
         self.catat_makanan(hari, "Roti & susu", 400)
         self.catat_makanan(hari, "Ayam bakar", 550)
         self.catat_aktivitas(hari, jalan_kaki, 45)

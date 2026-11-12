@@ -1,7 +1,9 @@
 import io
+import os
 import secrets
 from contextlib import redirect_stdout
 from datetime import datetime
+from urllib.parse import urlparse
 
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 
@@ -16,7 +18,9 @@ NAMA_TABEL = ["pengguna", "aktivitas"] + list(TABEL_CATATAN.values())
 
 def buat_app(path_db="kesehatan.db"):
     app = Flask(__name__)
-    app.secret_key = "kesehatan-kelompok-8"
+    # Kunci sesi diambil dari environment kalau ada, kalau tidak dibuat acak setiap aplikasi dijalankan.
+    app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["PATH_DB"] = path_db
 
     def layanan():
@@ -24,9 +28,7 @@ def buat_app(path_db="kesehatan.db"):
             g.layanan = LayananKesehatan(Database(app.config["PATH_DB"]))
         return g.layanan
 
-    # Perlindungan CSRF: setiap form membawa token acak yang disimpan di sesi pengguna. Permintaan
-    # POST tanpa token yang cocok ditolak, supaya halaman dari situs lain tidak bisa mengirim data
-    # atas nama pengguna.
+    # Perlindungan CSRF: setiap form membawa token acak yang disimpan di sesi pengguna. Permintaan POST tanpa token yang cocok ditolak, supaya halaman dari situs lain tidak bisa mengirim data atas nama pengguna.
     @app.before_request
     def periksa_token():
         if request.method == "POST":
@@ -56,9 +58,12 @@ def buat_app(path_db="kesehatan.db"):
     def tanggal_form():
         teks = request.form.get("tanggal", "")
         try:
-            return datetime.strptime(teks, "%Y-%m-%d")
+            tanggal = datetime.strptime(teks, "%Y-%m-%d")
         except ValueError:
             raise ValueError("Format tanggal salah")
+        if not 1900 <= tanggal.year <= 2100:
+            raise ValueError("Tahun harus antara 1900 dan 2100")
+        return tanggal
 
     def jam_form(nama):
         try:
@@ -67,8 +72,7 @@ def buat_app(path_db="kesehatan.db"):
             raise ValueError("Format jam salah, gunakan HH:MM")
 
     def baris(c):
-        # tampilkan() mencetak ke layar, jadi hasil cetaknya ditangkap dulu lalu dipakai sebagai
-        # teks di tabel. Dengan begitu format tampilan di web sama dengan di terminal.
+        # tampilkan() mencetak ke layar, jadi hasil cetaknya ditangkap dulu lalu dipakai sebagai teks di tabel. Dengan begitu format tampilan di web sama dengan di terminal.
         buffer = io.StringIO()
         with redirect_stdout(buffer):
             c.tampilkan()
@@ -181,10 +185,16 @@ def buat_app(path_db="kesehatan.db"):
         l = layanan()
         tanggal = request.args.get("tanggal", hari_ini())
         hasil = None
-        try:
-            hasil = l.defisit_surplus(datetime.strptime(tanggal, "%Y-%m-%d"))
-        except ValueError as e:
-            flash(str(e) if l.pengguna is None else "Format tanggal salah", "error")
+        if l.pengguna is None:
+            flash("Buat profil pengguna terlebih dahulu", "error")
+        else:
+            try:
+                tgl = datetime.strptime(tanggal, "%Y-%m-%d")
+                if not 1900 <= tgl.year <= 2100:
+                    raise ValueError
+                hasil = l.defisit_surplus(tgl)
+            except ValueError:
+                flash("Format tanggal salah", "error")
         return render_template("defisit.html", tanggal=tanggal, h=hasil)
 
     @app.route("/catatan")
@@ -201,12 +211,16 @@ def buat_app(path_db="kesehatan.db"):
             flash("Catatan dihapus", "ok")
         except ValueError as e:
             flash(str(e), "error")
-        return redirect(request.referrer or url_for("catatan"))
+        # Kembali ke halaman asal hanya kalau masih di situs ini, supaya tidak bisa diarahkan ke situs lain.
+        asal = urlparse(request.referrer or "")
+        if asal.netloc == request.host and asal.path.startswith("/") and not asal.path.startswith("//"):
+            return redirect(asal.path)
+        return redirect(url_for("catatan"))
 
     @app.route("/data-contoh", methods=["POST"])
     def data_contoh():
         layanan().isi_data_contoh()
-        flash("Data contoh terisi: profil Budi dan 6 catatan (8-9 Oktober 2026)", "ok")
+        flash("Data contoh terisi: profil Nicholas dan 6 catatan (8-9 Oktober 2026)", "ok")
         return redirect(url_for("beranda"))
 
     @app.route("/database")

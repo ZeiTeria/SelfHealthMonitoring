@@ -1,8 +1,6 @@
 from datetime import datetime
 
-
-# Fungsi-fungsi input di bawah mengulang pertanyaan sampai pengguna mengisi nilai yang benar,
-# jadi program tidak langsung error kalau yang diketik ternyata huruf.
+# Input supaya tidak salah tipe data dan membuat crash program
 def input_int(prompt):
     while True:
         try:
@@ -25,9 +23,13 @@ def input_tanggal():
         if not teks:
             return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            return datetime.strptime(teks, "%Y-%m-%d")
+            tanggal = datetime.strptime(teks, "%Y-%m-%d")
         except ValueError:
             print("Format tanggal salah!")
+            continue
+        if 1900 <= tanggal.year <= 2100:
+            return tanggal
+        print("Tahun harus antara 1900 dan 2100!")
 
 
 def input_jam(prompt):
@@ -36,3 +38,15 @@ def input_jam(prompt):
             return datetime.strptime(input(prompt).strip(), "%H:%M").time()
         except ValueError:
             print("Format jam salah, gunakan HH:MM")
+
+
+# Menanyakan satu isian sampai nilainya lolos cek.
+def minta(baca, prompt, cek):
+    while True:
+        nilai = baca(prompt)
+        try:
+            cek(nilai)
+        except ValueError as e:
+            print(f"  {e}. Silakan coba lagi.")
+        else:
+            return nilai

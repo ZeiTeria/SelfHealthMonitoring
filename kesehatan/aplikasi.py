@@ -1,10 +1,9 @@
 from datetime import datetime, time
-
+import os
 from .aktivitas import Berenang, Bersepeda, JalanKaki, Lari
-from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur,
-                      CatatanVital)
+from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur, CatatanVital)
 from .exceptions import AbnormalVitalException
-from .input_util import input_float, input_int, input_jam, input_tanggal
+from .input_util import input_float, input_int, input_jam, input_tanggal, minta
 from .iterasi import RiwayatCatatan, catatan_tanggal, pemantau_vital
 from .pengguna import FAKTOR_AKTIVITAS, NAMA_LEVEL, Pengguna
 
@@ -34,18 +33,20 @@ class AplikasiKesehatan:
         return True
 
     def buat_profil(self):
-        nama = input("Nama: ")
-        usia = input_int("Usia (tahun): ")
-        tinggi = input_float("Tinggi (cm): ")
-        berat = input_float("Berat (kg): ")
-        jk = input("Jenis kelamin (L/P): ")
-        target = input_float("Target berat (kg): ")
+        # Profil sementara dipakai supaya tiap isian bisa dicek oleh setter Pengguna saat itu juga. Profil lama baru diganti setelah semua isian benar.
+        p = Pengguna("-", 20, 170, 60, "L", 60, 1)
+        minta(input, "Nama: ", lambda v: setattr(p, "nama", v))
+        minta(input_int, "Usia (tahun): ", lambda v: setattr(p, "usia", v))
+        minta(input_float, "Tinggi (cm): ", lambda v: setattr(p, "tinggi", v))
+        minta(input_float, "Berat (kg): ", lambda v: setattr(p, "berat", v))
+        minta(input, "Jenis kelamin (L/P): ", lambda v: setattr(p, "jenis_kelamin", v))
+        minta(input_float, "Target berat (kg): ", lambda v: setattr(p, "target_berat", v))
         for k, v in NAMA_LEVEL.items():
             print(f"  {k}. {v}")
-        level = input_int("Level aktivitas (1-5): ")
-        self._pengguna = Pengguna(nama, usia, tinggi, berat, jk, target, level)
+        minta(input_int, "Level aktivitas (1-5): ", lambda v: setattr(p, "level_aktivitas", v))
+        self._pengguna = p
         print("Profil tersimpan.")
-        self.pengguna.tampil_profil()
+        p.tampil_profil()
 
     def menu_bmi(self):
         if not self.ada_profil():
@@ -77,10 +78,17 @@ class AplikasiKesehatan:
     def log_berat(self):
         if not self.ada_profil():
             return
-        catatan = CatatanBerat(input_tanggal(), input_float("Berat (kg): "))
+        tanggal = input_tanggal()
+        berat = minta(input_float, "Berat (kg): ", lambda v: CatatanBerat(tanggal, v))
+        catatan = CatatanBerat(tanggal, berat)
+        terbaru = max([c.tanggal for c in self.daftar_catatan if isinstance(c, CatatanBerat)], default=None)
         self.daftar_catatan.append(catatan)
-        self.pengguna.berat = catatan.berat
-        print("Berat tercatat, profil diperbarui.")
+        # Berat di profil hanya diganti kalau catatan ini yang paling baru.
+        if terbaru is None or tanggal >= terbaru:
+            self.pengguna.berat = catatan.berat
+            print("Berat tercatat, profil diperbarui.")
+        else:
+            print("Berat tercatat. Profil tidak berubah karena sudah ada catatan yang lebih baru.")
 
     def log_aktivitas(self):
         if not self.ada_profil():
@@ -88,12 +96,14 @@ class AplikasiKesehatan:
         tanggal = input_tanggal()
         for i, a in enumerate(self.daftar_aktivitas, 1):
             print(f"  {i}. {a.nama} (MET {a.met})")
-        nomor = input_int("Nomor aktivitas: ")
-        if not 1 <= nomor <= len(self.daftar_aktivitas):
-            print("Aktivitas tidak tersedia!")
-            return
-        durasi = input_int("Durasi (menit): ")
-        catatan = CatatanAktivitas(tanggal, self.daftar_aktivitas[nomor - 1], durasi, self.pengguna.berat)
+        def cek_nomor(n):
+            if not 1 <= n <= len(self.daftar_aktivitas):
+                raise ValueError("Aktivitas tidak tersedia")
+        nomor = minta(input_int, "Nomor aktivitas: ", cek_nomor)
+        aktivitas = self.daftar_aktivitas[nomor - 1]
+        berat = self.pengguna.berat
+        durasi = minta(input_int, "Durasi (menit): ", lambda v: CatatanAktivitas(tanggal, aktivitas, v, berat))
+        catatan = CatatanAktivitas(tanggal, aktivitas, durasi, berat)
         self.daftar_catatan.append(catatan)
         print(f"Kalori terbakar: {catatan.kalori_terbakar:.0f} kkal")
 
@@ -101,8 +111,9 @@ class AplikasiKesehatan:
         if not self.ada_profil():
             return
         tanggal = input_tanggal()
-        nama = input("Nama makanan: ")
-        self.daftar_catatan.append(CatatanMakanan(tanggal, nama, input_float("Kalori (kkal): ")))
+        nama = minta(input, "Nama makanan: ", lambda v: CatatanMakanan(tanggal, v, 0))
+        kalori = minta(input_float, "Kalori (kkal): ", lambda v: CatatanMakanan(tanggal, nama, v))
+        self.daftar_catatan.append(CatatanMakanan(tanggal, nama, kalori))
         print("Makanan tercatat.")
 
     def defisit_surplus(self):
@@ -112,12 +123,11 @@ class AplikasiKesehatan:
         hari_ini = list(catatan_tanggal(self.daftar_catatan, tanggal))
         total_masuk = sum([c.kalori_masuk() for c in hari_ini])
         total_olahraga = sum([c.kalori_keluar() for c in hari_ini])
-        # Kebutuhan dasar memakai TDEE level 1 (tanpa olahraga), karena kalori olahraga
-        # dijumlahkan terpisah dari catatan aktivitas.
+        # Kebutuhan memakai TDEE level 1 (tanpa olahraga), karena kalori olahraga dijumlahkan terpisah dari catatan aktivitas.
         kebutuhan = self.pengguna.hitung_tdee(1)
         selisih = total_masuk - (kebutuhan + total_olahraga)
         print(f"Kalori masuk     : {total_masuk:.0f} kkal")
-        print(f"Kebutuhan dasar  : {kebutuhan:.0f} kkal")
+        print(f"Kebutuhan (lv 1) : {kebutuhan:.0f} kkal")
         print(f"Dibakar olahraga : {total_olahraga:.0f} kkal")
         if selisih < 0:
             print(f"DEFISIT {-selisih:.0f} kkal")
@@ -139,8 +149,11 @@ class AplikasiKesehatan:
     def catat_vital(self):
         if not self.ada_profil():
             return
-        catatan = CatatanVital(input_tanggal(), input_int("Sistolik (mmHg): "),
-                               input_int("Diastolik (mmHg): "), input_int("Detak jantung (bpm): "))
+        tanggal = input_tanggal()
+        sistolik = minta(input_int, "Sistolik (mmHg): ", lambda v: CatatanVital(tanggal, v, 20, 70))
+        diastolik = minta(input_int, "Diastolik (mmHg): ", lambda v: CatatanVital(tanggal, sistolik, v, 70))
+        detak = minta(input_int, "Detak jantung (bpm): ", lambda v: CatatanVital(tanggal, sistolik, diastolik, v))
+        catatan = CatatanVital(tanggal, sistolik, diastolik, detak)
         try:
             catatan.cek_vital()
             print("Tanda vital normal.")
@@ -155,8 +168,7 @@ class AplikasiKesehatan:
         if not self.daftar_catatan:
             print("Belum ada catatan.")
             return
-        # Setiap catatan dipanggil dengan tampilkan() yang sama, tetapi hasilnya berbeda karena
-        # tiap kelas menulis ulang method itu (polymorphism).
+        # Setiap catatan dipanggil dengan tampilkan() yang sama, tetapi hasilnya berbeda karena tiap kelas menulis ulang method itu (polymorphism).
         for catatan in RiwayatCatatan(self.daftar_catatan):
             catatan.tampilkan()
         pantau = pemantau_vital()
@@ -167,29 +179,28 @@ class AplikasiKesehatan:
         print(f"Ringkasan tanda vital: {hasil[0]} abnormal dari {hasil[1]} pemeriksaan")
 
     def isi_data_contoh(self):
-        # Data contoh sama dengan yang dipakai di laporan (Budi, 8-9 Oktober 2026), supaya hasil di
-        # layar bisa dicocokkan dengan angka di laporan.
+        # Data contoh sama dengan yang dipakai di laporan (Nicholas, 8-9 Oktober 2026), supaya hasil di layar bisa dicocokkan dengan angka di laporan.
         if self.pengguna is not None:
             jawab = input("Profil dan catatan yang ada akan diganti data contoh. Lanjut? (y/n): ")
             if jawab.strip().lower() != "y":
                 print("Dibatalkan.")
                 return
             self._daftar_catatan = []
-        self._pengguna = Pengguna("Budi", 20, 170, 72, "L", 65, 2)
+        self._pengguna = Pengguna("Nicholas", 20, 175, 81, "L", 75, 2)
         hari = datetime(2026, 10, 9)
         vital = CatatanVital(hari, 120, 80, 75)
-        vital.cek_vital()
         self._daftar_catatan += [
-            CatatanBerat(datetime(2026, 10, 8), 72.5),
+            CatatanBerat(datetime(2026, 10, 8), 81.5),
             CatatanMakanan(hari, "Roti & susu", 400),
             CatatanMakanan(hari, "Ayam bakar", 550),
-            CatatanAktivitas(hari, self.daftar_aktivitas[0], 45, 72),
+            CatatanAktivitas(hari, self.daftar_aktivitas[0], 45, 81),
             CatatanTidur(hari, time(23, 0), time(6, 0)),
             vital,
         ]
-        print("Data contoh terisi (profil Budi + 6 catatan, 8-9 Oktober 2026).")
+        print("Data contoh terisi (profil Nicholas + 6 catatan, 8-9 Oktober 2026).")
 
     def tampil_menu(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
         print("\n=== MONITORING KESEHATAN PRIBADI ===")
         print(" 1. Buat Profil              7. Defisit/Surplus Kalori")
         print(" 2. BMI & Kategori           8. Log Pola Tidur")
@@ -216,3 +227,6 @@ class AplikasiKesehatan:
                 menu[pilih]()
             except ValueError as e:
                 print(f"Gagal: {e}")
+            except EOFError:
+                print("\nInput berakhir, program ditutup.")
+                break

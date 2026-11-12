@@ -1,17 +1,39 @@
 {% extends "base.html" %}
-{% block judul %}Database{% endblock %}
+
+{% block judul %}
+	Database
+{% endblock %}
+
 {% block isi %}
-<h1>Isi database SQLite</h1>
-<p class="ket">Berkas <code>{{ path }}</code> berisi {{ tabel|length }} tabel. Halaman ini hanya menampilkan isinya.</p>
-<div class="tabel-db">
-{% for t in tabel %}
-<h2><code>{{ t.nama }}</code> · {{ t.isi|length }} baris</h2>
-{% if t.isi %}
-<div class="gulir"><table class="data">
-  <thead><tr>{% for k in t.kolom %}<th>{{ k }}</th>{% endfor %}</tr></thead>
-  <tbody>{% for baris in t.isi %}<tr>{% for v in baris %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-</table></div>
-{% else %}<p class="kosong">Tabel masih kosong ({{ t.kolom|join(', ') }}).</p>{% endif %}
-{% endfor %}
-</div>
+	<h1>Isi database SQLite</h1>
+	<p class="ket">Berkas <code>{{ path }}</code> berisi {{ tabel|length }} tabel. Halaman ini hanya menampilkan isinya.</p>
+	<div class="tabel-db">
+		{% for t in tabel %}
+			<h2><code>{{ t.nama }}</code> · {{ t.isi|length }} baris</h2>
+			{% if t.isi %}
+				<div class="gulir">
+					<table class="data">
+						<thead>
+							<tr>
+								{% for k in t.kolom %}
+									<th>{{ k }}</th>
+								{% endfor %}
+							</tr>
+						</thead>
+						<tbody>
+							{% for baris in t.isi %}
+								<tr>
+									{% for v in baris %}
+										<td>{{ v }}</td>
+									{% endfor %}
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<p class="kosong">Tabel masih kosong ({{ t.kolom|join(', ') }}).</p>
+			{% endif %}
+		{% endfor %}
+	</div>
 {% endblock %}

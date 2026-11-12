@@ -7,6 +7,8 @@ class CatatanTidur(CatatanHarian):
     def __init__(self, tanggal, jam_tidur, jam_bangun):
         if not isinstance(jam_tidur, time) or not isinstance(jam_bangun, time):
             raise ValueError("Format jam salah, gunakan HH:MM")
+        if jam_tidur == jam_bangun:
+            raise ValueError("Jam tidur dan jam bangun tidak boleh sama")
         super().__init__(tanggal)
         self._jam_tidur = jam_tidur
         self._jam_bangun = jam_bangun
@@ -31,8 +33,7 @@ class CatatanTidur(CatatanHarian):
 
     def durasi_jam(self):
         selisih = self.menit_bangun - self.menit_tidur
-        # Kalau jam bangun lebih kecil atau sama dengan jam tidur, berarti tidurnya melewati
-        # tengah malam, jadi hasilnya ditambah 24 jam.
+        # Kalau jam bangun lebih kecil atau sama dengan jam tidur, berarti tidurnya melewati tengah malam, jadi hasilnya ditambah 24 jam.
         if selisih <= 0:
             selisih += 24 * 60
         return selisih / 60

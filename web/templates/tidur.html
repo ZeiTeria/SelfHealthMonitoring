@@ -1,17 +1,31 @@
 {% extends "base.html" %}
 {% from "_komponen.html" import tabel_catatan %}
-{% block judul %}Tidur{% endblock %}
+
+{% block judul %}
+	Tidur
+{% endblock %}
+
 {% block isi %}
-<h1>Log pola tidur</h1>
-<form method="post" class="form"><input type="hidden" name="csrf" value="{{ csrf_token }}">
-  <div class="baris">
-    <label>Tanggal<input name="tanggal" type="date" value="{{ hari }}" required></label>
-    <label>Jam tidur<input name="jam_tidur" type="time" value="23:00" required></label>
-    <label>Jam bangun<input name="jam_bangun" type="time" value="06:00" required></label>
-  </div>
-  <p class="sub">Tidur yang melewati tengah malam dihitung otomatis.</p>
-  <button type="submit">Simpan</button>
-</form>
-<h2>Catatan terbaru</h2>
-{{ tabel_catatan(daftar) }}
+	<h1>Log pola tidur</h1>
+	<form method="post" class="form">
+		<input type="hidden" name="csrf" value="{{ csrf_token }}">
+		<div class="baris">
+			<label>
+				Tanggal
+				<input name="tanggal" type="date" value="{{ hari }}" required>
+			</label>
+			<label>
+				Jam tidur
+				<input name="jam_tidur" type="time" value="23:00" required>
+			</label>
+			<label>
+				Jam bangun
+				<input name="jam_bangun" type="time" value="06:00" required>
+			</label>
+		</div>
+		<p class="sub">Tidur yang melewati tengah malam dihitung otomatis.</p>
+		<button type="submit">Simpan</button>
+	</form>
+	<h2>Catatan terbaru</h2>
+	{{ tabel_catatan(daftar) }}
 {% endblock %}

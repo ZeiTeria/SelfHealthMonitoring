@@ -40,10 +40,10 @@ def test_profil_wajib_sebelum_ringkasan(layanan):
 
 def test_data_contoh_dan_defisit(layanan):
     layanan.isi_data_contoh()
-    assert layanan.pengguna.nama == "Budi" and len(layanan.database.muat_catatan()) == 6
+    assert layanan.pengguna.nama == "Nicholas" and len(layanan.database.muat_catatan()) == 6
     hasil = layanan.defisit_surplus(datetime(2026, 10, 9))
-    assert (hasil["masuk"], hasil["olahraga"], hasil["kebutuhan"]) == (950, 189, 2025)
-    assert hasil["status"] == "DEFISIT" and hasil["selisih"] == -1264
+    assert (hasil["masuk"], hasil["olahraga"], hasil["kebutuhan"]) == (950, 212.625, 2170.5)
+    assert hasil["status"] == "DEFISIT" and hasil["selisih"] == -1433.125
 
 
 def test_riwayat_urut_tanggal_dan_ringkasan_vital(layanan):
@@ -108,9 +108,9 @@ def test_profil_tidak_valid_menampilkan_pesan(web):
 def test_halaman_berisi_hasil_data_contoh(web):
     web.kirim("/data-contoh")
     beranda = teks(web.get("/"))
-    assert "Budi" in beranda and "DEFISIT 1264 kkal" in beranda and "1820 kkal" in beranda
+    assert "Nicholas" in beranda and "DEFISIT 1433 kkal" in beranda and "1987 kkal" in beranda
     hitung = teks(web.get("/hitung"))
-    assert "24.91" in hitung and "2320" in hitung and "Target asupan harian" in hitung
+    assert "26.45" in hitung and "2487" in hitung and "Target asupan harian" in hitung
 
 
 def test_vital_abnormal_dan_normal(web):
@@ -134,7 +134,7 @@ def test_halaman_database_dan_hapus(web):
     web.kirim("/hapus/catatan_makanan/1")
     assert "Roti &amp; susu" not in teks(web.get("/catatan"))
     assert web.kirim("/hapus/pengguna/1").status_code == 302
-    assert "Budi" in teks(web.get("/"))
+    assert "Nicholas" in teks(web.get("/"))
 
 
 def test_post_tanpa_token_ditolak(tmp_path):
@@ -142,3 +142,51 @@ def test_post_tanpa_token_ditolak(tmp_path):
     klien.get("/")
     assert klien.post("/data-contoh", data={}).status_code == 400
     assert klien.post("/data-contoh", data={"csrf": "salah"}).status_code == 400
+
+
+def test_berat_tanggal_lama_tidak_menimpa_profil(layanan):
+    layanan.buat_profil("A", 20, 170, 70, "L", 65, 2)
+    layanan.catat_berat(datetime(2026, 11, 10), 68)
+    layanan.catat_berat(datetime(2026, 11, 1), 75)
+    assert layanan.pengguna.berat == 68
+
+
+def test_hapus_catatan_yang_tidak_ada_ditolak(layanan):
+    with pytest.raises(ValueError):
+        layanan.database.hapus_catatan("catatan_berat", 999)
+
+
+def test_tahun_tidak_valid_ditolak_di_web(web):
+    web.kirim("/profil", PROFIL)
+    hasil = web.kirim("/berat", {"tanggal": "0999-01-01", "berat": "70"})
+    assert "Tahun harus antara 1900 dan 2100" in teks(hasil)
+    assert web.get("/").status_code == 200
+
+
+def test_hapus_tidak_mengalihkan_ke_situs_lain(web):
+    web.kirim("/profil", PROFIL)
+    web.kirim("/berat", {"tanggal": "2026-10-01", "berat": "70"})
+    hasil = web.kirim("/hapus/catatan_berat/1", headers={"Referer": "https://evil.example/x"})
+    assert hasil.status_code == 302
+    assert "evil.example" not in hasil.headers["Location"]
+
+
+def test_hapus_menolak_alamat_protokol_relatif(web):
+    web.kirim("/profil", PROFIL)
+    web.kirim("/berat", {"tanggal": "2026-10-01", "berat": "70"})
+    hasil = web.kirim("/hapus/catatan_berat/1", headers={"Referer": "http://localhost//evil.example/x"})
+    assert not hasil.headers["Location"].startswith("//")
+
+
+def test_beranda_tanpa_catatan_makanan_tidak_menampilkan_defisit(web):
+    web.kirim("/profil", PROFIL)
+    web.kirim("/vital", {"tanggal": "2026-10-01", "sistolik": "120", "diastolik": "80", "detak_jantung": "70"})
+    halaman = teks(web.get("/"))
+    assert "DEFISIT" not in halaman and "Belum ada catatan makanan" in halaman
+
+
+def test_catatan_tidak_bisa_disimpan_dua_kali(layanan):
+    c = CatatanBerat(datetime(2026, 10, 1), 70)
+    layanan.database.simpan_catatan(c)
+    with pytest.raises(ValueError):
+        layanan.database.simpan_catatan(c)

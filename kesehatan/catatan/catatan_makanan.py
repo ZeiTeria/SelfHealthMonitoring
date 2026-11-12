@@ -3,8 +3,10 @@ from .catatan_harian import CatatanHarian
 
 class CatatanMakanan(CatatanHarian):
     def __init__(self, tanggal, nama_makanan, kalori):
-        if not nama_makanan.strip():
+        if not isinstance(nama_makanan, str) or not nama_makanan.strip():
             raise ValueError("Nama makanan tidak boleh kosong")
+        if len(nama_makanan.strip()) > 100:
+            raise ValueError("Nama makanan maksimal 100 karakter")
         if not 0 <= kalori <= 10000:
             raise ValueError("Kalori harus 0-10000 kkal")
         super().__init__(tanggal)

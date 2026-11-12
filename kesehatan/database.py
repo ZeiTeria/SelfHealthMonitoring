@@ -1,10 +1,7 @@
 import sqlite3
 from datetime import datetime
-
 from .aktivitas import Berenang, Bersepeda, JalanKaki, Lari
-from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur,
-                      CatatanVital)
-from .exceptions import AbnormalVitalException
+from .catatan import (CatatanAktivitas, CatatanBerat, CatatanMakanan, CatatanTidur, CatatanVital)
 from .pengguna import Pengguna
 
 FORMAT_TANGGAL = "%Y-%m-%d"
@@ -96,8 +93,7 @@ class Database:
         r = self.koneksi.execute("SELECT * FROM pengguna WHERE id = 1").fetchone()
         if r is None:
             return None
-        return Pengguna(r["nama"], r["usia"], r["tinggi"], r["berat"], r["jenis_kelamin"],
-                        r["target_berat"], r["level_aktivitas"])
+        return Pengguna(r["nama"], r["usia"], r["tinggi"], r["berat"], r["jenis_kelamin"], r["target_berat"], r["level_aktivitas"])
 
     def daftar_aktivitas(self):
         kelas = {a.nama: a for a in (JalanKaki(), Lari(), Bersepeda(), Berenang())}
@@ -105,9 +101,9 @@ class Database:
         return [(r["id"], kelas[r["nama"]]) for r in rows]
 
     def simpan_catatan(self, c):
-        # Tiap jenis catatan punya tabel dan kolom sendiri, jadi dicek dulu objek ini termasuk
-        # jenis yang mana. Nilai selalu dikirim lewat tanda tanya (?), tidak digabung ke teks SQL,
-        # supaya aman dari SQL injection.
+        # Tiap jenis catatan punya tabel dan kolom sendiri, jadi dicek dulu objek ini termasuk jenis yang mana. Nilai selalu dikirim lewat tanda tanya (?), tidak digabung ke teks SQL, supaya aman dari SQL injection.
+        if c.id is not None:
+            raise ValueError("Catatan ini sudah tersimpan")
         tanggal = c.tanggal.strftime(FORMAT_TANGGAL)
         if isinstance(c, CatatanBerat):
             sql, nilai = "INSERT INTO catatan_berat (tanggal, berat) VALUES (?, ?)", (tanggal, c.berat)
@@ -134,8 +130,7 @@ class Database:
         c.id = cur.lastrowid
 
     def muat_catatan(self):
-        # Baris dari tiap tabel dibuat lagi menjadi objek catatan, sehingga bagian lain program
-        # bekerja dengan objek yang sama seperti versi terminal.
+        # Baris dari tiap tabel dibuat lagi menjadi objek catatan, sehingga bagian lain program bekerja dengan objek yang sama seperti versi terminal.
         hasil = []
         aktivitas = dict(self.daftar_aktivitas())
         for r in self.koneksi.execute("SELECT * FROM catatan_berat"):
@@ -151,20 +146,17 @@ class Database:
             hasil.append(self._beri_id(CatatanTidur(self._tgl(r), jam_tidur, jam_bangun), r))
         for r in self.koneksi.execute("SELECT * FROM catatan_vital"):
             c = CatatanVital(self._tgl(r), r["sistolik"], r["diastolik"], r["detak_jantung"])
-            try:
-                c.cek_vital()
-            except AbnormalVitalException:
-                pass
             hasil.append(self._beri_id(c, r))
         return hasil
 
     def hapus_catatan(self, tabel, id_catatan):
-        # Nama tabel tidak bisa dikirim lewat tanda tanya (?), jadi dicocokkan dulu dengan daftar
-        # tabel yang diizinkan sebelum dimasukkan ke query.
+        # Nama tabel tidak bisa dikirim lewat tanda tanya (?), jadi dicocokkan dulu dengan daftar tabel yang diizinkan sebelum dimasukkan ke query.
         if tabel not in TABEL_CATATAN.values():
             raise ValueError("Tabel tidak dikenal")
-        self.koneksi.execute(f"DELETE FROM {tabel} WHERE id = ?", (id_catatan,))
+        cur = self.koneksi.execute(f"DELETE FROM {tabel} WHERE id = ?", (id_catatan,))
         self.koneksi.commit()
+        if cur.rowcount == 0:
+            raise ValueError("Catatan tidak ditemukan")
 
     def kosongkan(self):
         for tabel in TABEL_CATATAN.values():

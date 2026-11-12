@@ -1,15 +1,32 @@
 {% macro tabel_catatan(daftar, kosong="Belum ada catatan.") %}
-{% if daftar %}
-<table class="data">
-  <thead><tr><th>Tanggal</th><th>Jenis</th><th>Isi</th><th></th></tr></thead>
-  <tbody>
-  {% for c in daftar %}
-  <tr {% if c.abnormal %}class="abnormal"{% endif %}>
-    <td>{{ c.tanggal }}</td><td>{{ c.jenis }}</td><td>{{ c.isi }}</td>
-    <td><form method="post" onsubmit="return confirm('Hapus catatan ini?')" action="{{ url_for('hapus', tabel=c.tabel, id_catatan=c.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="kecil bahaya" type="submit">Hapus</button></form></td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
-{% else %}<p class="kosong">{{ kosong }}</p>{% endif %}
+	{% if daftar %}
+		<table class="data">
+			<thead>
+				<tr>
+					<th>Tanggal</th>
+					<th>Jenis</th>
+					<th>Isi</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for c in daftar %}
+					<tr {% if c.abnormal %}class="abnormal"{% endif %}>
+						<td>{{ c.tanggal }}</td>
+						<td>{{ c.jenis }}</td>
+						<td>{{ c.isi }}</td>
+						<td>
+							<form method="post" onsubmit="return confirm('Hapus catatan ini?')" action="{{ url_for('hapus', tabel=c.tabel, id_catatan=c.id) }}">
+								<input type="hidden" name="csrf" value="{{ csrf_token }}">
+								<button class="kecil bahaya" type="submit">Hapus</button>
+							</form>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		<p class="kosong">{{ kosong }}</p>
+	{% endif %}
 {% endmacro %}
+
