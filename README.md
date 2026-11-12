@@ -36,7 +36,10 @@ Semua data disimpan di database SQLite (`kesehatan.db`, dibuat otomatis) dan hal
         exceptions.py        AbnormalVitalException
         aktivitas.py         AktivitasFisik dan turunannya (MET)
         pengguna.py          Pengguna: BMI, BMR, TDEE, rencana target
-        catatan.py           CatatanHarian (abstract) dan lima catatan turunannya
+        catatan/             satu berkas per kelas catatan:
+            catatan_harian.py    CatatanHarian (abstract)
+            catatan_berat.py, catatan_aktivitas.py, catatan_makanan.py,
+            catatan_tidur.py, catatan_vital.py
         iterasi.py           RiwayatCatatan (iterator), generator, coroutine
         database.py          Database: penyimpanan SQLite
         layanan.py           LayananKesehatan: logika yang dipakai halaman web
